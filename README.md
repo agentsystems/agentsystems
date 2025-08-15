@@ -21,6 +21,12 @@ Every breakthrough in computing followed the same pattern: proprietary technolog
 - ✅ You believe AI should be accessible to everyone, not just big tech customers
 - ✅ You want to build and monetize specialized AI agents
 
+## The Core Insight
+
+Thousands of specialized AI agents are being built. But to use them, you must send your data to unknown servers. **This trust barrier blocks an entire AI economy from emerging.**
+
+AgentSystems breaks that barrier. Run any agent on YOUR infrastructure. See everything it does. When trust is no longer the bottleneck, intelligence becomes a commodity.
+
 ## Try it in 60 Seconds
 
 ```bash
@@ -38,12 +44,6 @@ curl -X POST http://localhost:18080/invoke/hello-world-agent \
 ```
 
 **That's it.** Your AI runs locally. Your data stays local.
-
-## The Core Insight
-
-Thousands of specialized AI agents are being built. But to use them, you must send your data to unknown servers. **This trust barrier blocks an entire AI economy from emerging.**
-
-AgentSystems breaks that barrier. Run any agent on YOUR infrastructure. See everything it does. When trust is no longer the bottleneck, intelligence becomes a commodity.
 
 ## How It Works
 
@@ -85,25 +85,22 @@ curl -X POST http://localhost:18080/invoke/medical-diagnosis-agent \
 
 **Coming soon:**
 - 🚧 Agent marketplace
-- 🚧 WebAssembly isolation
-- 🚧 Kubernetes operator
+- 🚧 Reputation systems
+- 🚧 Performance optimizations
 
-## Build Your Own Agent
+## Core Components
 
-```python
-# Your agent runs on user infrastructure
-# You never see their data
-# Share capabilities, not risk
+### [Agent Control Plane](https://github.com/agentsystems/agent-control-plane)
+The gateway that orchestrates agents, handles routing, manages lifecycle, and provides security isolation.
 
-from agentsystems import Agent
+### [AgentSystems SDK](https://github.com/agentsystems/agentsystems-sdk)
+Command-line tool for deploying and managing your AgentSystems platform.
 
-@agent.invoke
-async def analyze(data):
-    # Your specialized logic here
-    return {"result": "..."}
+```bash
+agentsystems init    # Bootstrap your deployment
+agentsystems up      # Start the platform
+agentsystems status  # Check agent health
 ```
-
-[Full agent tutorial →](docs/build-agent.md)
 
 ## The Technical Foundation
 
@@ -149,14 +146,6 @@ We need:
 
 [Contribution Guide →](CONTRIBUTING.md)
 
-## Join the Revolution
-
-This is bigger than any company or product. We're building open infrastructure for the future of AI deployment.
-
-```bash
-git clone https://github.com/agentsystems/agentsystems
-```
-
 ---
 
 <p align="center">
@@ -170,9 +159,5 @@ git clone https://github.com/agentsystems/agentsystems
 </p>
 
 <p align="center">
-<a href="https://github.com/agentsystems/agentsystems/stargazers">⭐ Star us</a> - Help make intelligence a commodity, not a luxury
-</p>
-
-<p align="center">
-<sub>The commons for AI agents</sub>
+<a href="https://github.com/agentsystems/agentsystems/stargazers">⭐ Star us on GitHub</a>
 </p>
