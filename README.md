@@ -2,30 +2,24 @@
 
 **The open infrastructure for commoditizing intelligence**
 
-## The Problem That Changes Everything
+## Why This Matters
 
-Every breakthrough in computing followed the same pattern: proprietary technology becomes open infrastructure, costs collapse, innovation explodes. We're doing this for AI agents.
+Every breakthrough in computing followed the same pattern: proprietary technology becomes open infrastructure, costs collapse, innovation explodes. **We're doing this for agents.**
 
-**Today:** To use any AI agent, you must send your data to their servers. Unacceptable for healthcare, finance, government, or anyone who values privacy.
+Thousands of specialized agents are being built. But to use them, you must send your data to unknown servers. **This trust barrier blocks an entire agent economy from emerging.**
 
-**Tomorrow:** Run any AI agent on YOUR infrastructure. Your data never leaves. You see everything. Trust through transparency, not promises.
+AgentSystems breaks that barrier. Run any agent on YOUR infrastructure. Your data never leaves. You see everything. When trust is no longer the bottleneck, intelligence becomes a commodity.
 
 ![AgentSystems Demo](docs/demo.gif)
-*Deploy a specialized AI agent in 30 seconds, complete data sovereignty*
+*Deploy a specialized agent in 30 seconds, complete data sovereignty*
 
 ## This is for you if...
 
 - ✅ You handle sensitive data (healthcare, finance, legal, government)
-- ✅ You want to use AI but can't send data to OpenAI/Anthropic/Google  
+- ✅ You want to use agents but can't send data to OpenAI/Anthropic/Google  
 - ✅ You need audit trails for compliance
-- ✅ You believe AI should be accessible to everyone, not just big tech customers
-- ✅ You want to build and monetize specialized AI agents
-
-## The Core Insight
-
-Thousands of specialized AI agents are being built. But to use them, you must send your data to unknown servers. **This trust barrier blocks an entire AI economy from emerging.**
-
-AgentSystems breaks that barrier. Run any agent on YOUR infrastructure. See everything it does. When trust is no longer the bottleneck, intelligence becomes a commodity.
+- ✅ You believe agents should be accessible to everyone, not just big tech customers
+- ✅ You want to build and monetize specialized agents
 
 ## Try it in 60 Seconds
 
@@ -43,7 +37,7 @@ curl -X POST http://localhost:18080/invoke/hello-world-agent \
   -d '{"task": "Write a haiku about data sovereignty"}'
 ```
 
-**That's it.** Your AI runs locally. Your data stays local.
+**That's it.** Your agent runs locally. Your data stays local.
 
 ## How It Works
 
@@ -69,8 +63,8 @@ curl -X POST http://localhost:18080/invoke/medical-diagnosis-agent \
 
 - 🏥 **Healthcare**: Processing patient data in HIPAA-compliant environments
 - 🏦 **Banking**: Running risk analysis without exposing customer data  
-- 🏛️ **Government**: Deploying AI within air-gapped networks
-- 🚀 **Startups**: Building AI products without infrastructure overhead
+- 🏛️ **Government**: Deploying agents within air-gapped networks
+- 🚀 **Startups**: Building agent products without infrastructure overhead
 
 [Share your use case →](https://github.com/agentsystems/agentsystems/discussions)
 
@@ -116,7 +110,7 @@ Details in [docs/architecture.md](docs/architecture.md)
 Core isolation works. Evaluate based on your risk tolerance. Early adopters are helping us harden it.
 
 **Q: Why not just use Docker?**  
-Docker isolates applications. We add controls specific to running untrusted AI with sensitive data.
+Docker isolates applications. We add controls specific to running untrusted agents with sensitive data.
 
 **Q: What's the business model?**  
 There isn't one. This is infrastructure. Think Linux, not Red Hat. The core remains 100% open source forever.
