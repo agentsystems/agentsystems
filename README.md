@@ -1,157 +1,142 @@
 # AgentSystems
 
-**The open infrastructure for commoditizing intelligence**
+**Open infrastructure for running AI agents on your own hardware**
 
-## Why This Matters
+Deploy any AI agent on your infrastructure. Process data locally. Configure your own security controls.
 
-Every breakthrough in computing followed the same pattern: proprietary technology becomes open infrastructure, costs collapse, innovation explodes. **We're doing this for agents.**
+## Why AgentSystems?
 
-Thousands of specialized agents are being built. But to use them, you must send your data to unknown servers. **This trust barrier blocks an entire agent economy from emerging.**
+Organizations with sensitive data need AI but can't use cloud services:
+- **Healthcare** systems can't send patient data to OpenAI
+- **Banks** can't expose customer records to external APIs  
+- **Government** agencies require air-gapped deployments
 
-AgentSystems breaks that barrier. Run any agent on YOUR infrastructure. Your data never leaves. You see everything. When trust is no longer the bottleneck, intelligence becomes a commodity.
+AgentSystems is designed to enable organizations to run AI agents locally with:
+- ✅ **Local processing** - Data can be processed within your infrastructure
+- ✅ **Audit capabilities** - Operations can be logged for compliance
+- ✅ **Agent portability** - Switch between agents when needed
+- ✅ **Self-hosted model** - Use your own compute resources
 
-![AgentSystems Demo](docs/demo.gif)
-*Deploy a specialized agent in 30 seconds, complete data sovereignty*
+## Platform Components
 
-## This is for you if...
-
-- ✅ You handle sensitive data (healthcare, finance, legal, government)
-- ✅ You want to use agents but can't send data to OpenAI/Anthropic/Google  
-- ✅ You need audit trails for compliance
-- ✅ You believe agents should be accessible to everyone, not just big tech customers
-- ✅ You want to build and monetize specialized agents
-
-## Try it in 60 Seconds
-
-```bash
-# One-line install (macOS/Linux)
-curl -fsSL https://raw.githubusercontent.com/agentsystems/agentsystems/main/install.sh | sh
-
-# Initialize and start
-agentsystems init my-deployment
-cd my-deployment && agentsystems up
-
-# Use it
-curl -X POST http://localhost:18080/invoke/hello-world-agent \
-  -H "Content-Type: application/json" \
-  -d '{"task": "Write a haiku about data sovereignty"}'
-```
-
-**That's it.** Your agent runs locally. Your data stays local.
+| Repository | Purpose | Technology |
+|------------|---------|------------|
+| [agent-control-plane](https://github.com/agentsystems/agent-control-plane) | Gateway & orchestration | FastAPI, PostgreSQL, Docker |
+| [agentsystems-sdk](https://github.com/agentsystems/agentsystems-sdk) | CLI deployment tool | Python, Docker Compose |
+| [agentsystems-ui](https://github.com/agentsystems/agentsystems-ui) | Web interface | React, TypeScript |
+| [agentsystems-toolkit](https://github.com/agentsystems/agentsystems-toolkit) | Agent development | Python, LangChain |
+| [agent-template](https://github.com/agentsystems/agent-template) | Reference agent | FastAPI, LangGraph |
 
 ## How It Works
 
+```
+Your App → Gateway (18080) → Agent Container → Results
+                ↓                      ↓
+          Audit Logs            Local Processing
+```
+
+The gateway discovers agents via Docker labels, routes requests, applies configured policies, and logs operations. Each agent runs in a Docker container with configurable network access.
+
+## Quick Start
+
 ```bash
-# Invoke an agent through the gateway
-curl -X POST http://localhost:18080/invoke/medical-diagnosis-agent \
-  -H "Authorization: Bearer your-token" \
+# Install (60 seconds)
+curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
+
+# Deploy platform
+agentsystems init my-deployment
+cd my-deployment && agentsystems up
+
+# Run an agent
+curl -X POST http://localhost:18080/invoke/hello-world-agent \
   -H "Content-Type: application/json" \
-  -d '{"symptoms": "headache, fever", "history": "patient-data.json"}'
-
-# Your data stays in your infrastructure
-# Agent runs in isolation  
-# Every operation is logged
+  -d '{"prompt": "Analyze this data locally"}'
 ```
 
-**What changes when agents become trustless:**
-- Cost → just your compute
-- Risk → dramatically reduced via sandboxing
-- Switching → instant, no lock-in
-- Trust → verified through transparency
+## Key Features
 
-## Who's Using AgentSystems
+### Security Features
+- Docker container deployment for agents
+- Configurable network egress filtering
+- Audit logging capabilities (PostgreSQL)
+- Thread-scoped file processing
 
-- 🏥 **Healthcare**: Processing patient data in HIPAA-compliant environments
-- 🏦 **Banking**: Running risk analysis without exposing customer data  
-- 🏛️ **Government**: Deploying agents within air-gapped networks
-- 🚀 **Startups**: Building agent products without infrastructure overhead
+### Agent Management  
+- Auto-discovery of Docker containers
+- Lazy startup and idle timeout
+- Multi-registry support (Docker Hub, Harbor, ECR)
+- Agent switching capabilities
 
-[Share your use case →](https://github.com/agentsystems/agentsystems/discussions)
+### Developer Experience
+- Simple FastAPI contract for agents
+- Model provider abstraction (`get_model()`)
+- Built-in file upload/download handling
+- Progress tracking and async operations
 
-## What Exists Today
+## Building Your First Agent
 
-**Working now:**
-- ✅ Container-based isolation
-- ✅ Network egress filtering
-- ✅ Multi-registry support
-- ✅ Audit logging
-- ✅ Resource management
+```python
+from fastapi import FastAPI, Request
 
-**Coming soon:**
-- 🚧 Agent marketplace
-- 🚧 Reputation systems
-- 🚧 Performance optimizations
+app = FastAPI()
 
-## Core Components
+@app.post("/invoke")
+async def invoke(request: Request, data: dict):
+    # Process data within this container
+    return {"result": "processed"}
 
-### [Agent Control Plane](https://github.com/agentsystems/agent-control-plane)
-The gateway that orchestrates agents, handles routing, manages lifecycle, and provides security isolation.
-
-### [AgentSystems SDK](https://github.com/agentsystems/agentsystems-sdk)
-Command-line tool for deploying and managing your AgentSystems platform.
-
-```bash
-agentsystems init    # Bootstrap your deployment
-agentsystems up      # Start the platform
-agentsystems status  # Check agent health
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 ```
 
-## The Technical Foundation
+[Full agent development guide →](https://docs.agentsystems.ai/agents)
 
-**Architecture**: Gateway orchestrates isolated containers with controlled egress  
-**Security**: Defense in depth with audit logging  
-**Philosophy**: Simple, composable, open  
+## Summary
 
-Details in [docs/architecture.md](docs/architecture.md)
+AgentSystems provides infrastructure for deploying AI agents on your own hardware. It's designed for organizations that need to run AI agents locally due to regulatory, security, or privacy requirements.
 
-## FAQ
+The platform provides tools for agent orchestration and management, allowing you to focus on building specialized agents for your use cases.
 
-**Q: Is this production-ready?**  
-Core isolation works. Evaluate based on your risk tolerance. Early adopters are helping us harden it.
+## Documentation
 
-**Q: Why not just use Docker?**  
-Docker isolates applications. We add controls specific to running untrusted agents with sensitive data.
+- **[Getting Started Guide](https://docs.agentsystems.ai/quickstart)** - First deployment in 5 minutes
+- **[Architecture Overview](https://docs.agentsystems.ai/architecture)** - Deep dive into system design
+- **[Security Model](https://docs.agentsystems.ai/security)** - Isolation and audit details
+- **[Agent Development](https://docs.agentsystems.ai/agents)** - Build custom agents
+- **[API Reference](https://docs.agentsystems.ai/api)** - Complete endpoint documentation
+- **[Enterprise Deployment](https://docs.agentsystems.ai/enterprise)** - Production configurations
 
-**Q: What's the business model?**  
-There isn't one. This is infrastructure. Think Linux, not Red Hat. The core remains 100% open source forever.
+## Example Use Cases
 
-**Q: How does this project sustain itself?**  
-Like successful open infrastructure before us: corporate sponsors, cloud providers offering managed versions, and companies building commercial services on top. [Become a sponsor →](https://github.com/sponsors/agentsystems)
+- **Healthcare**: Medical record processing in controlled environments
+- **Financial Services**: Risk analysis on local infrastructure
+- **Government**: Document processing in isolated networks
+- **Legal**: Document analysis within secure boundaries
 
-**Q: What if malicious agents steal data?**  
-Multiple defenses: isolation, egress filtering, audit logging. Defense in depth approach significantly reduces risk.
+## Disclaimer
 
-## Security Notice
+This software is provided "as is" without warranties of any kind. Users are responsible for:
+- Evaluating security requirements for their use case
+- Implementing appropriate security measures
+- Ensuring compliance with applicable regulations
+- Reviewing and auditing agent code before deployment
 
-AgentSystems provides isolation and audit capabilities designed to reduce risk when running untrusted code. Users are responsible for:
-- Reviewing agent code and permissions
-- Configuring appropriate egress policies  
-- Ensuring compliance with their specific regulatory requirements
-
-See [SECURITY.md](SECURITY.md) for details.
+See [LICENSE](LICENSE) for full legal terms.
 
 ## Contributing
 
-We need:
-- **Security researchers** to break and fix isolation
-- **Platform engineers** to scale the system
-- **Domain experts** to build specialized agents  
-- **Organizations** to deploy and provide feedback
+We welcome contributions in:
+- Security hardening and testing
+- Agent templates for specific industries
+- Performance optimizations
+- Documentation improvements
 
-[Contribution Guide →](CONTRIBUTING.md)
+## Support
 
----
+- [GitHub Issues](https://github.com/agentsystems/agentsystems/issues) - Bug reports and features
+- [Discord Community](https://discord.gg/agentsystems) - Real-time help
 
-<p align="center">
-<strong>When every agent can run anywhere, intelligence becomes abundant.</strong>
-</p>
+## License
 
-<p align="center">
-<a href="https://github.com/agentsystems/agentsystems">GitHub</a> •
-<a href="https://discord.gg/agentsystems">Discord</a> •
-<a href="https://docs.agentsystems.ai">Documentation</a>
-</p>
-
-<p align="center">
-<a href="https://github.com/agentsystems/agentsystems/stargazers">⭐ Star us on GitHub</a>
-</p>
+All use of this software is governed by the [LICENSE](LICENSE).
