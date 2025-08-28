@@ -103,8 +103,29 @@ ensure_pipx() {
   fi
 
   python3 -m pipx ensurepath || true
+  
   # Ensure PATH is updated for current session
   export PATH="$HOME/.local/bin:$PATH"
+  
+  # Ensure PATH is updated for new shells
+  add_to_shell_config() {
+    local shell_config="$1"
+    local path_line='export PATH="$HOME/.local/bin:$PATH"'
+    
+    if [ -f "$shell_config" ]; then
+      # Check if PATH is already configured
+      if ! grep -q '$HOME/.local/bin' "$shell_config" 2>/dev/null; then
+        echo "$path_line" >> "$shell_config"
+        status "Added PATH to $shell_config"
+      fi
+    fi
+  }
+  
+  # Update common shell configs
+  add_to_shell_config "$HOME/.bashrc"
+  add_to_shell_config "$HOME/.zshrc"
+  add_to_shell_config "$HOME/.profile"
+  
   status "✅ pipx installed."
 }
 
