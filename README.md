@@ -60,18 +60,9 @@ The gateway discovers agents via Docker labels, routes requests, applies configu
 ## Quick Start
 
 ```bash
-# Install in minutes
 curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
+
 # Follow the on-screen instructions
-
-# Deploy platform
-agentsystems init my-deployment
-cd my-deployment && agentsystems up
-
-# Run an agent
-curl -X POST http://localhost:18080/invoke/hello-world-agent \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Analyze this data locally"}'
 ```
 
 ## Key Features
@@ -95,21 +86,6 @@ curl -X POST http://localhost:18080/invoke/hello-world-agent \
 - Progress tracking and async operations
 
 ## Building Your First Agent
-
-```python
-from fastapi import FastAPI, Request
-
-app = FastAPI()
-
-@app.post("/invoke")
-async def invoke(request: Request, data: dict):
-    # Process data within this container
-    return {"result": "processed"}
-
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-```
 
 [Full agent development guide →](https://docs.agentsystems.ai/agents)
 
