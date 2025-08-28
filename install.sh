@@ -191,4 +191,18 @@ echo
 ensure_docker
 echo
 ensure_agentsystems_sdk
-status "🎉 Done."
+
+# --- Next Steps ---
+print_next_steps() {
+    echo
+    status "🎉 Installation Complete!"
+    echo
+    status "Next Steps:"
+    echo "  1. Initialize: agentsystems init"
+    echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
+    echo "  3. Access UI: http://localhost:3001"
+    echo
+    status "Documentation: https://github.com/agentsystems/agentsystems"
+}
+
+print_next_steps
