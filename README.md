@@ -17,6 +17,16 @@ AgentSystems is designed to enable organizations to run AI agents locally with:
 - ✅ **Agent portability** - Switch between agents when needed
 - ✅ **Self-hosted model** - Use your own compute resources
 
+## Technical Innovation
+
+- **Universal Agent Compatibility** - Run any containerized agent from any registry (Docker Hub, Harbor, ECR)
+- **Cryptographic Audit Trail** - Hash-chained PostgreSQL logs provide tamper-evident compliance records
+- **Zero-Trust Isolation** - Complete sandboxing between agents with controlled network egress
+- **Multi-Registry Federation** - Connect to multiple registries simultaneously for agent marketplace
+- **Thread-Scoped Execution** - Every request gets isolated storage context at `/artifacts/{thread-id}/`
+- **Hot-Swap Capability** - Switch agent implementations without stopping workloads
+- **Lazy Resource Management** - Agents start on-demand and stop when idle
+
 ## Platform Components
 
 | Repository | Purpose | Technology |
@@ -113,16 +123,6 @@ The platform provides tools for agent orchestration and management, allowing you
 - **Financial Services**: Risk analysis on local infrastructure
 - **Government**: Document processing in isolated networks
 - **Legal**: Document analysis within secure boundaries
-
-## Disclaimer
-
-This software is provided "as is" without warranties of any kind. Users are responsible for:
-- Evaluating security requirements for their use case
-- Implementing appropriate security measures
-- Ensuring compliance with applicable regulations
-- Reviewing and auditing agent code before deployment
-
-See [LICENSE](LICENSE) for full legal terms.
 
 ## Contributing
 
