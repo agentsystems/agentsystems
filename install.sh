@@ -1,261 +1,208 @@
-#!/bin/bash
-# AgentSystems Installer Script
-# Installs Docker, pipx, and the AgentSystems SDK
-# Supports macOS and Linux
+#!/usr/bin/env bash
+# bootstrap_agentsystems.sh
+# Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
+# Supports interactive mode (default) or non-interactive with --yes/-y
 
-set -e
+set -euo pipefail
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# --- UX helpers ---
+red="$( (tput bold 2>/dev/null || :)$(tput setaf 1 2>/dev/null || :) )"
+plain="$(tput sgr0 2>/dev/null || :)"
+status() { echo ">>> $*" >&2; }
+warn()   { echo "${red}WARNING:${plain} $*" >&2; }
+die()    { echo "${red}ERROR:${plain} $*"; exit 1; }
+have()   { command -v "$1" >/dev/null 2>&1; }
 
-# Platform detection
+# --- Flags ---
+AUTO_CONFIRM=false
+for arg in "$@"; do
+  case "$arg" in
+    -y|--yes) AUTO_CONFIRM=true ;;
+  esac
+done
+
+confirm() {
+  local msg="$1"
+  if $AUTO_CONFIRM; then
+    status "$msg -> auto-confirmed (--yes)"
+    return 0
+  fi
+  read -r -p "$msg [y/N]: " ans
+  [[ ${ans,,} == "y" || ${ans,,} == "yes" ]]
+}
+
 OS="$(uname -s)"
-ARCH="$(uname -m)"
 
-echo -e "${BLUE}===============================================${NC}"
-echo -e "${BLUE}       AgentSystems Platform Installer        ${NC}"
-echo -e "${BLUE}===============================================${NC}"
-echo ""
+# --- pipx ---
+ensure_pipx() {
+  if have pipx; then
+    status "✅ pipx found: $(pipx --version 2>/dev/null || true)"
+    return 0
+  fi
 
-# Function to print colored messages
-print_status() {
-    echo -e "${GREEN}✓${NC} $1"
-}
+  status "pipx not detected."
+  if ! confirm "Proceed with installing pipx?"; then
+    warn "Skipped pipx installation."
+    return 0
+  fi
 
-print_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
-}
-
-# Check if running with sudo when needed
-check_sudo() {
-    if [[ $EUID -ne 0 ]] && [[ "$1" == "required" ]]; then
-        print_error "This operation requires sudo privileges"
-        echo "Please run: curl -fsSL https://raw.githubusercontent.com/agentsystems/agentsystems/main/install.sh | sudo sh"
-        exit 1
-    fi
-}
-
-# Check OS compatibility
-check_os() {
-    case "$OS" in
-        Linux*)
-            print_status "Detected Linux ($ARCH)"
-            ;;
-        Darwin*)
-            print_status "Detected macOS ($ARCH)"
-            ;;
-        *)
-            print_error "Unsupported operating system: $OS"
-            echo "This installer supports Linux and macOS only"
-            exit 1
-            ;;
-    esac
-}
-
-# Check if command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Install Docker
-install_docker() {
-    print_info "Checking Docker installation..."
-    
-    if command_exists docker; then
-        DOCKER_VERSION=$(docker --version | cut -d' ' -f3 | cut -d',' -f1)
-        print_status "Docker is already installed (version $DOCKER_VERSION)"
-        
-        # Check if Docker daemon is running
-        if ! docker info >/dev/null 2>&1; then
-            print_warning "Docker is installed but not running"
-            if [[ "$OS" == "Darwin" ]]; then
-                print_info "Please start Docker Desktop"
-            else
-                print_info "Please start the Docker daemon: sudo systemctl start docker"
-            fi
-            exit 1
-        fi
+  if [[ $OS == "Darwin" ]]; then
+    if have brew; then
+      brew install pipx
     else
-        print_warning "Docker is not installed"
-        
-        if [[ "$OS" == "Darwin" ]]; then
-            print_info "Please install Docker Desktop from:"
-            echo "  https://www.docker.com/products/docker-desktop/"
-            echo ""
-            echo "After installation, run this script again."
-            exit 1
-        else
-            # Linux installation
-            print_info "Installing Docker..."
-            
-            # Use Docker's official install script
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sudo sh get-docker.sh
-            rm get-docker.sh
-            
-            # Add current user to docker group
-            if [[ $EUID -ne 0 ]]; then
-                sudo usermod -aG docker $USER
-                print_warning "Added $USER to docker group. Please log out and back in for this to take effect."
-            fi
-            
-            # Start Docker
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            
-            print_status "Docker installed successfully"
-        fi
+      if ! have python3; then die "python3 not found; install Xcode CLT or Python first."; fi
+      python3 -m pip install --user pipx
     fi
+  elif [[ $OS == "Linux" ]] && grep -qi ubuntu /etc/os-release; then
+    if ! (sudo apt-get update -y && sudo apt-get install -y pipx); then
+      python3 -m pip install --user pipx
+    fi
+  else
+    python3 -m pip install --user pipx
+  fi
+
+  python3 -m pipx ensurepath || true
+  status "✅ pipx installed."
 }
 
-# Install pipx
-install_pipx() {
-    print_info "Checking pipx installation..."
-    
-    if command_exists pipx; then
-        PIPX_VERSION=$(pipx --version | cut -d' ' -f1)
-        print_status "pipx is already installed (version $PIPX_VERSION)"
+# --- Docker ---
+engine_running() { docker info >/dev/null 2>&1; }
+
+docker_status() {
+  if have docker; then
+    status "✅ Docker CLI found: $(docker --version 2>/dev/null || true)"
+    if engine_running; then
+      status "✅ Docker Engine is running."
+      return 0
     else
-        print_warning "pipx is not installed"
-        print_info "Installing pipx..."
-        
-        # Check for Python 3
-        if ! command_exists python3; then
-            print_error "Python 3 is required but not installed"
-            if [[ "$OS" == "Darwin" ]]; then
-                print_info "Install Python 3 using Homebrew: brew install python3"
-            else
-                print_info "Install Python 3 using your package manager"
-            fi
-            exit 1
-        fi
-        
-        # Install pipx based on OS
-        if [[ "$OS" == "Darwin" ]]; then
-            if command_exists brew; then
-                brew install pipx
-                pipx ensurepath
-            else
-                # Fallback to pip
-                python3 -m pip install --user pipx
-                python3 -m pipx ensurepath
-            fi
-        else
-            # Linux installation
-            if command_exists apt-get; then
-                sudo apt-get update
-                sudo apt-get install -y pipx
-            elif command_exists dnf; then
-                sudo dnf install -y pipx
-            elif command_exists pacman; then
-                sudo pacman -S --noconfirm python-pipx
-            else
-                # Fallback to pip
-                python3 -m pip install --user pipx
-                python3 -m pipx ensurepath
-            fi
-        fi
-        
-        print_status "pipx installed successfully"
-        
-        # Update PATH for current session
-        export PATH="$PATH:$HOME/.local/bin"
+      warn "Docker CLI present but Engine not running."
+      return 2
     fi
+  else
+    warn "Docker CLI not found."
+    return 1
+  fi
 }
 
-# Install AgentSystems SDK
-install_agentsystems() {
-    print_info "Installing AgentSystems SDK..."
-    
-    # Check if already installed
-    if pipx list | grep -q "agentsystems-sdk"; then
-        print_info "AgentSystems SDK is already installed, upgrading..."
-        pipx upgrade agentsystems-sdk
-    else
-        pipx install agentsystems-sdk
-    fi
-    
-    # Verify installation
-    if command_exists agentsystems; then
-        SDK_VERSION=$(agentsystems --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-        print_status "AgentSystems SDK installed successfully (version $SDK_VERSION)"
-    else
-        print_error "AgentSystems SDK installation failed"
-        exit 1
-    fi
+install_docker_macos() {
+  status "Docker not detected."
+  status "Docker Desktop is the recommended install method."
+  if confirm "Open the Docker Desktop download page now?"; then
+    (have open && open "https://www.docker.com/products/docker-desktop/") || true
+  fi
+  if ! confirm "After installing, ensure Docker Desktop is running. Continue?"; then
+    die "User aborted before Docker Desktop was confirmed running."
+  fi
+  have docker || die "Docker CLI not in PATH. Open a new terminal and retry."
+  for _ in {1..90}; do engine_running && break || sleep 2; done
+  engine_running || die "Docker Engine not running. Start Docker Desktop and retry."
+  status "✅ Docker Engine running (macOS)."
 }
 
-# Print next steps
+install_docker_ubuntu_packages() {
+  status "Configuring Docker APT repo and installing Engine..."
+  sudo apt-get update -y
+  sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+  sudo install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+  codename="$(lsb_release -cs)"
+  sudo tee /etc/apt/sources.list.d/docker.list >/dev/null <<EOF
+deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${codename} stable
+EOF
+
+  sudo apt-get update -y
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+ensure_docker() {
+  local st=0
+  docker_status || st=$?
+
+  case "$st" in
+    0) return 0 ;;   # CLI + Engine running
+    1) ;;            # Not installed
+    2) ;;            # CLI yes, Engine no
+  esac
+
+  if ! confirm "Proceed with Docker setup?"; then
+    warn "Skipped Docker setup."
+    return 0
+  fi
+
+  if [[ $OS == "Darwin" ]]; then
+    if have docker && ! engine_running; then
+      if ! confirm "Start Docker Desktop now and continue?"; then
+        die "User declined to start Docker Desktop."
+      fi
+      engine_running || die "Docker Engine still not running."
+      status "✅ Docker Engine started (macOS)."
+      return 0
+    fi
+    install_docker_macos
+    return 0
+  fi
+
+  if [[ $OS == "Linux" ]] && grep -qi ubuntu /etc/os-release; then
+    if have docker && ! engine_running; then
+      if confirm "Start and enable the Docker service now?"; then
+        sudo systemctl enable --now docker || die "Failed to start docker service."
+        engine_running || die "Docker Engine still not running."
+        status "✅ Docker Engine started (Ubuntu)."
+      else
+        die "User declined to start Docker service."
+      fi
+      return 0
+    fi
+    if confirm "Install Docker Engine packages via APT now?"; then
+      install_docker_ubuntu_packages
+      sudo systemctl enable --now docker
+      engine_running || die "Docker Engine failed to start after installation."
+      status "✅ Docker Engine installed and running (Ubuntu)."
+      if have id && ! id -nG "$USER" 2>/dev/null | grep -qw docker; then
+        warn "To run docker without sudo: sudo usermod -aG docker \"$USER\" && re-login"
+      fi
+    else
+      die "User declined Docker installation."
+    fi
+    return 0
+  fi
+
+  die "Unsupported OS for automatic Docker setup: $OS"
+}
+
+# --- agentsystems-sdk ---
+ensure_agentsystems_sdk() {
+  status "Ensuring latest agentsystems-sdk via pipx."
+  if confirm "Proceed with pipx install --upgrade agentsystems-sdk?"; then
+    pipx install --upgrade agentsystems-sdk
+    status "✅ agentsystems-sdk is up to date."
+  else
+    warn "Skipped agentsystems-sdk installation/upgrade."
+  fi
+}
+
+# --- Main ---
+status "=== Bootstrapping: pipx • Docker • agentsystems-sdk ==="
+ensure_pipx
+echo
+ensure_docker
+echo
+ensure_agentsystems_sdk
+
+# --- Next Steps ---
 print_next_steps() {
-    echo ""
-    echo -e "${GREEN}===============================================${NC}"
-    echo -e "${GREEN}    Installation Complete! 🎉                 ${NC}"
-    echo -e "${GREEN}===============================================${NC}"
-    echo ""
-    echo -e "${BLUE}Next Steps:${NC}"
-    echo ""
-    echo "1. Initialize your AgentSystems deployment:"
-    echo -e "   ${GREEN}agentsystems init${NC}"
-    echo ""
-    echo "2. Start the platform:"
-    echo -e "   ${GREEN}cd agent-platform-deployments${NC}"
-    echo -e "   ${GREEN}agentsystems up${NC}"
-    echo ""
-    echo "3. Access the platform:"
-    echo "   • API Gateway: http://localhost:18080"
-    echo "   • Langfuse: http://localhost:3010"
-    echo ""
-    echo -e "${BLUE}Documentation:${NC} https://github.com/agentsystems/agentsystems"
-    echo -e "${BLUE}SDK Reference:${NC} https://github.com/agentsystems/agentsystems-sdk"
-    echo ""
-    
-    # Check if PATH needs updating
-    if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
-        print_warning "Add $HOME/.local/bin to your PATH by adding this to your shell profile:"
-        echo '    export PATH="$PATH:$HOME/.local/bin"'
-        echo ""
-    fi
-    
-    # Docker group reminder for Linux
-    if [[ "$OS" == "Linux" ]] && ! groups | grep -q docker; then
-        print_warning "You may need to log out and back in for Docker group changes to take effect"
-    fi
+    echo
+    status "🎉 Installation Complete!"
+    echo
+    status "Next Steps:"
+    echo "  1. Initialize: agentsystems init"
+    echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
+    echo "  3. Access UI: http://localhost:3001"
+    echo
+    status "Documentation: https://github.com/agentsystems/agentsystems"
 }
 
-# Main installation flow
-main() {
-    check_os
-    
-    echo ""
-    print_info "Starting installation process..."
-    echo ""
-    
-    # Step 1: Docker
-    install_docker
-    echo ""
-    
-    # Step 2: pipx
-    install_pipx
-    echo ""
-    
-    # Step 3: AgentSystems SDK
-    install_agentsystems
-    
-    # Done!
-    print_next_steps
-}
-
-# Run main function
-main
+print_next_steps
