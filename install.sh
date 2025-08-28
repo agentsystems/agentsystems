@@ -3,7 +3,12 @@
 # Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
 # Supports interactive mode (default) or non-interactive with --yes/-y
 
-set -euo pipefail
+# For maximum compatibility, we'll just remove the bash-specific options when not in bash
+if [ -n "$BASH_VERSION" ]; then
+  set -euo pipefail
+else
+  set -eu
+fi
 
 # --- UX helpers ---
 red=""
@@ -25,14 +30,23 @@ for arg in "$@"; do
   esac
 done
 
+# Auto-confirm if piped (no interactive terminal available)
+if [ ! -t 0 ]; then
+  AUTO_CONFIRM=true
+fi
+
 confirm() {
   local msg="$1"
   if $AUTO_CONFIRM; then
-    status "$msg -> auto-confirmed (--yes)"
+    status "$msg -> auto-confirmed"
     return 0
   fi
+  
   read -r -p "$msg [y/N]: " ans
-  [[ ${ans,,} == "y" || ${ans,,} == "yes" ]]
+  case "${ans}" in
+    [Yy]|[Yy][Ee][Ss]) return 0 ;;
+    *) return 1 ;;
+  esac
 }
 
 OS="$(uname -s)"
@@ -42,11 +56,11 @@ check_requirements() {
   status "Checking system requirements..."
   
   # OS already detected as $OS - reuse existing logic patterns
-  if [[ $OS == "Darwin" ]]; then
+  if [ "$OS" = "Darwin" ]; then
     status "✅ macOS detected."
-  elif [[ $OS == "Linux" ]] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
+  elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
     status "✅ Ubuntu Linux detected."
-  elif [[ $OS == "Linux" ]]; then
+  elif [ "$OS" = "Linux" ]; then
     warn "Non-Ubuntu Linux detected. Docker installation may require manual setup."
   else
     die "Unsupported OS: $OS. This script supports macOS and Ubuntu Linux."
@@ -73,14 +87,14 @@ ensure_pipx() {
     return 0
   fi
 
-  if [[ $OS == "Darwin" ]]; then
+  if [ "$OS" = "Darwin" ]; then
     if have brew; then
       brew install pipx
     else
       if ! have python3; then die "python3 not found; install Xcode CLT or Python first."; fi
       python3 -m pip install --user pipx
     fi
-  elif [[ $OS == "Linux" ]] && grep -qi ubuntu /etc/os-release; then
+  elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
     if ! (sudo apt-get update -y && sudo apt-get install -y pipx); then
       python3 -m pip install --user pipx
     fi
@@ -89,6 +103,8 @@ ensure_pipx() {
   fi
 
   python3 -m pipx ensurepath || true
+  # Ensure PATH is updated for current session
+  export PATH="$HOME/.local/bin:$PATH"
   status "✅ pipx installed."
 }
 
@@ -159,7 +175,7 @@ ensure_docker() {
     return 0
   fi
 
-  if [[ $OS == "Darwin" ]]; then
+  if [ "$OS" = "Darwin" ]; then
     if have docker && ! engine_running; then
       if ! confirm "Start Docker Desktop now and continue?"; then
         die "User declined to start Docker Desktop."
@@ -172,7 +188,7 @@ ensure_docker() {
     return 0
   fi
 
-  if [[ $OS == "Linux" ]] && grep -qi ubuntu /etc/os-release; then
+  if [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
     if have docker && ! engine_running; then
       if confirm "Start and enable the Docker service now?"; then
         sudo systemctl enable --now docker || die "Failed to start docker service."
@@ -203,8 +219,17 @@ ensure_docker() {
 # --- agentsystems-sdk ---
 ensure_agentsystems_sdk() {
   status "Ensuring latest agentsystems-sdk via pipx."
-  if confirm "Proceed with pipx install --upgrade agentsystems-sdk?"; then
-    pipx install --upgrade agentsystems-sdk
+  
+  # Ensure pipx bin directory is in PATH
+  export PATH="$HOME/.local/bin:$PATH"
+  
+  if confirm "Proceed with installing/upgrading agentsystems-sdk?"; then
+    # Try upgrade first, fall back to install if not already installed
+    if pipx list | grep -q agentsystems-sdk; then
+      pipx upgrade agentsystems-sdk
+    else
+      pipx install agentsystems-sdk
+    fi
     status "✅ agentsystems-sdk is up to date."
   else
     warn "Skipped agentsystems-sdk installation/upgrade."
@@ -226,6 +251,17 @@ print_next_steps() {
     echo
     status "🎉 Installation Complete!"
     echo
+    
+    # Check if agentsystems command is available
+    if ! have agentsystems && [ -f "$HOME/.local/bin/agentsystems" ]; then
+        warn "agentsystems is installed but not in your current PATH."
+        status "Run this command to update your PATH for this session:"
+        echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+        echo
+        status "Or open a new terminal/SSH session for the PATH to be automatically updated."
+        echo
+    fi
+    
     status "Next Steps:"
     echo "  1. Initialize: agentsystems init"
     echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
