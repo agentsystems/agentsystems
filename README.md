@@ -1,31 +1,36 @@
 # AgentSystems
 
-**Open infrastructure for running AI agents on your own hardware**
+**Run AI agents on your own terms**
 
-Deploy any AI agent on your infrastructure. Process data locally. Configure your own security controls.
+Deploy any AI agent locally. Process data on your hardware. Control your AI infrastructure.
 
 ## Why AgentSystems?
 
-Organizations with sensitive data need AI but can't use cloud services:
-- **Healthcare** systems can't send patient data to OpenAI
-- **Banks** can't expose customer records to external APIs  
-- **Government** agencies require air-gapped deployments
+You want to use AI agents, but:
+- **Privacy matters** - Why send your personal data to OpenAI or Google?
+- **Costs add up** - Cloud AI services charge premium prices for compute you could run yourself
+- **Vendor lock-in sucks** - Switching between AI providers shouldn't require rewriting everything
+- **You want control** - Your prompts, your data, your infrastructure
 
-AgentSystems is designed to enable organizations to run AI agents locally with:
-- ✅ **Local processing** - Data can be processed within your infrastructure
-- ✅ **Audit capabilities** - Operations can be logged for compliance
-- ✅ **Agent portability** - Switch between agents when needed
-- ✅ **Self-hosted model** - Use your own compute resources
+Whether you're a developer experimenting at home, a startup building the next big thing, or an enterprise with compliance requirements, AgentSystems lets you:
+- ✅ **Run locally** - From your laptop to your data center
+- ✅ **Use any AI provider** - OpenAI, Anthropic, Ollama, or self-hosted models
+- ✅ **Deploy community agents** - Access a growing hub of specialized agents
+- ✅ **Build and share** - Create agents that others can run
+- ✅ **Join the agent ecosystem** - Share specialized agents (free or commercial)
 
-## Technical Innovation
+## Key Capabilities
 
-- **Universal Agent Compatibility** - Run any containerized agent from any registry (Docker Hub, Harbor, ECR)
-- **Cryptographic Audit Trail** - Hash-chained PostgreSQL logs provide tamper-evident compliance records
-- **Zero-Trust Isolation** - Complete sandboxing between agents with controlled network egress
-- **Multi-Registry Federation** - Connect to multiple registries simultaneously for agent marketplace
-- **Thread-Scoped Execution** - Every request gets isolated storage context at `/artifacts/{thread-id}/`
-- **Hot-Swap Capability** - Switch agent implementations without stopping workloads
-- **Lazy Resource Management** - Agents start on-demand and stop when idle
+- **Run Any Agent** - Deploy GPT-4 powered tools, Llama models, or specialized automation agents
+- **Local Data Processing** - Run computations on your own hardware
+- **Agent Hub** - Discover and share community and commercial agents
+- **Container Isolation** - Each agent runs in a separate Docker container
+- **Mix & Match AI Providers** - Use OpenAI, Anthropic, Ollama, or local models
+- **Thread-Scoped Execution** - Each request gets its own storage and context
+- **Built-in Egress Control** - Configure URL access for agents
+- **Cryptographic Audit Trail** - Hash-chained logs for operation tracking
+- **Smart Resource Management** - Agents start when needed, stop when idle
+- **Multi-Registry Federation** - Pull agents from multiple sources simultaneously
 
 ## Platform Components
 
@@ -39,10 +44,15 @@ AgentSystems is designed to enable organizations to run AI agents locally with:
 
 ## How It Works
 
-```
-Your App → Gateway (18080) → Agent Container → Results
-                ↓                      ↓
-          Audit Logs            Local Processing
+```mermaid
+graph LR
+    A[Your App] -->|Request| B[Gateway :18080]
+    B --> C[Agent Container]
+    C -->|Results| A
+    B --> D[Audit Logs]
+    C --> E[Local Processing]
+    B --> F[Egress Proxy]
+    F --> G[Allowed URLs]
 ```
 
 The gateway discovers agents via Docker labels, routes requests, applies configured policies, and logs operations. Each agent runs in a Docker container with configurable network access.
@@ -50,8 +60,9 @@ The gateway discovers agents via Docker labels, routes requests, applies configu
 ## Quick Start
 
 ```bash
-# Install (60 seconds)
+# Install in minutes
 curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
+# Follow the on-screen instructions
 
 # Deploy platform
 agentsystems init my-deployment
@@ -102,15 +113,15 @@ async def health():
 
 [Full agent development guide →](https://docs.agentsystems.ai/agents)
 
-## Summary
+## Platform Overview
 
-AgentSystems provides infrastructure for deploying AI agents on your own hardware. It's designed for organizations that need to run AI agents locally due to regulatory, security, or privacy requirements.
+AgentSystems is infrastructure for running AI agents wherever you want - your laptop, home server, or enterprise data center. It handles the complex bits (isolation, orchestration, networking) so you can focus on building cool stuff.
 
-The platform provides tools for agent orchestration and management, allowing you to focus on building specialized agents for your use cases.
+The platform provides container orchestration specifically designed for AI agents, with isolation features, audit trails, and a growing hub where developers share specialized agents (both free and commercial).
 
 ## Documentation
 
-- **[Getting Started Guide](https://docs.agentsystems.ai/quickstart)** - First deployment in 5 minutes
+- **[Getting Started Guide](https://docs.agentsystems.ai/quickstart)** - Quick deployment guide
 - **[Architecture Overview](https://docs.agentsystems.ai/architecture)** - Deep dive into system design
 - **[Security Model](https://docs.agentsystems.ai/security)** - Isolation and audit details
 - **[Agent Development](https://docs.agentsystems.ai/agents)** - Build custom agents
@@ -119,23 +130,32 @@ The platform provides tools for agent orchestration and management, allowing you
 
 ## Example Use Cases
 
-- **Healthcare**: Medical record processing in controlled environments
-- **Financial Services**: Risk analysis on local infrastructure
-- **Government**: Document processing in isolated networks
-- **Legal**: Document analysis within secure boundaries
+**For Individuals & Developers:**
+- **Personal AI Assistant** - Run your own Jarvis without sending data to big tech
+- **Local Development** - Test and debug AI agents without cloud costs
+- **Content Creation** - Process your creative work locally
+- **Home Automation** - Connect agents to your smart home
+
+**For Businesses & Organizations:**
+- **Startups** - Build AI products without infrastructure overhead
+- **Healthcare** - Process patient data in controlled environments
+- **Financial Services** - Analyze sensitive financial data locally
+- **Legal Firms** - Review confidential documents locally
 
 ## Contributing
 
-We welcome contributions in:
-- Security hardening and testing
-- Agent templates for specific industries
-- Performance optimizations
-- Documentation improvements
+We're building this in the open and need help from:
+- **Agent Developers** - Build specialized agents to share or sell
+- **Security researchers** - Help us harden the isolation
+- **DevOps folks** - Improve deployment and scaling
+- **AI enthusiasts** - Create specialized agents for your domain
+- **Documentation writers** - Help others get started
 
-## Support
+## Community
 
 - [GitHub Issues](https://github.com/agentsystems/agentsystems/issues) - Bug reports and features
-- [Discord Community](https://discord.gg/agentsystems) - Real-time help
+- [Discord](https://discord.gg/agentsystems) - Chat with other builders
+- [Agent Hub](https://github.com/agentsystems/awesome-agents) - Find and share agents
 
 ## License
 
