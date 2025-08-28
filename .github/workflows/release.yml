@@ -1,0 +1,79 @@
+name: Release Install Script
+
+# Manual workflow dispatch only - no automatic triggers
+# Creates GitHub releases with install.sh as a downloadable asset
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0 or v1.0.0)'
+        required: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate version format
+        id: version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Must be pure semantic versioning (integers only)
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ ERROR: Version must be semantic versioning format X.Y.Z"
+            echo "   You entered: ${VERSION}"
+            echo "   Valid examples: 1.0.0, 0.1.2, 2.14.5"
+            exit 1
+          fi
+          
+          # Add v prefix for release tag
+          RELEASE_TAG="v${VERSION}"
+          echo "version=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+          echo "✅ Version format valid: ${VERSION} → ${RELEASE_TAG}"
+
+      - name: Validate install script
+        run: |
+          if [ ! -f "install.sh" ]; then
+            echo "❌ ERROR: install.sh not found!"
+            exit 1
+          fi
+          
+          # Basic syntax check
+          bash -n install.sh
+          echo "✅ Install script syntax valid"
+
+  release:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          
+          # Check if release already exists
+          if gh release view "${VERSION}" &>/dev/null; then
+            echo "❌ ERROR: Release ${VERSION} already exists"
+            exit 1
+          fi
+          
+          echo "📦 Creating release ${VERSION}..."
+          
+          # Create the release with install.sh as an asset
+          gh release create "${VERSION}" \
+            --title "AgentSystems Platform ${VERSION}" \
+            --notes "AgentSystems Platform installer script ${VERSION}" \
+            install.sh
+          
+          echo "✅ Release created successfully"
+          echo "📥 Install URL: https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh"
