@@ -6,8 +6,12 @@
 set -euo pipefail
 
 # --- UX helpers ---
-red="$( (tput bold 2>/dev/null || :)$(tput setaf 1 2>/dev/null || :) )"
-plain="$(tput sgr0 2>/dev/null || :)"
+red=""
+plain=""
+if command -v tput >/dev/null 2>&1; then
+  red="$(tput bold 2>/dev/null && tput setaf 1 2>/dev/null || :)"
+  plain="$(tput sgr0 2>/dev/null || :)"
+fi
 status() { echo ">>> $*" >&2; }
 warn()   { echo "${red}WARNING:${plain} $*" >&2; }
 die()    { echo "${red}ERROR:${plain} $*"; exit 1; }
@@ -32,6 +36,29 @@ confirm() {
 }
 
 OS="$(uname -s)"
+
+# --- System Requirements Check ---
+check_requirements() {
+  status "Checking system requirements..."
+  
+  # OS already detected as $OS - reuse existing logic patterns
+  if [[ $OS == "Darwin" ]]; then
+    status "✅ macOS detected."
+  elif [[ $OS == "Linux" ]] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
+    status "✅ Ubuntu Linux detected."
+  elif [[ $OS == "Linux" ]]; then
+    warn "Non-Ubuntu Linux detected. Docker installation may require manual setup."
+  else
+    die "Unsupported OS: $OS. This script supports macOS and Ubuntu Linux."
+  fi
+  
+  # Reuse existing have() function
+  if ! have python3; then
+    die "Python 3 is required but not found. Please install Python 3.8 or later."
+  fi
+  
+  status "✅ System requirements verified."
+}
 
 # --- pipx ---
 ensure_pipx() {
@@ -186,6 +213,8 @@ ensure_agentsystems_sdk() {
 
 # --- Main ---
 status "=== Bootstrapping: pipx • Docker • agentsystems-sdk ==="
+check_requirements
+echo
 ensure_pipx
 echo
 ensure_docker

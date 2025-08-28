@@ -21,8 +21,7 @@ Whether you're a developer experimenting at home, a startup building the next bi
 
 ## Key Capabilities
 
-- **Run Any Agent** - Deploy GPT-4 powered tools, Llama models, or specialized automation agents
-- **Local Data Processing** - Run computations on your own hardware
+- **Local Data Processing** - Run everything on your own hardware
 - **Agent Hub** - Discover and share community and commercial agents
 - **Container Isolation** - Each agent runs in a separate Docker container
 - **Mix & Match AI Providers** - Use OpenAI, Anthropic, Ollama, or local models
@@ -107,12 +106,18 @@ The platform provides container orchestration specifically designed for AI agent
 ## Example Use Cases
 
 **For Individuals & Developers:**
-- **Personal AI Assistant** - Run your own Jarvis without sending data to big tech
+
+AgentSystems is for any individual or developer who wants to control their AI infrastructure.
+
+- **Personal AI Assistant** - Run your own assistants without sending data to big tech
 - **Local Development** - Test and debug AI agents without cloud costs
 - **Content Creation** - Process your creative work locally
 - **Home Automation** - Connect agents to your smart home
 
 **For Businesses & Organizations:**
+
+AgentSystems is for any organization that wants to benefit from AI agents but doesn't want to share sensitive data or deal with infrastructure complexity. Examples include:
+
 - **Startups** - Build AI products without infrastructure overhead
 - **Healthcare** - Process patient data in controlled environments
 - **Financial Services** - Analyze sensitive financial data locally
