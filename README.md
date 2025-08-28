@@ -121,9 +121,9 @@ The platform provides container orchestration specifically designed for AI agent
 ## Contributing
 
 We're building this in the open and need help from:
-- **Agent Developers** - Build specialized agents to share or sell
+- **Agent developers** - Build specialized agents to share or sell
 - **Security researchers** - Help us harden the isolation
-- **DevOps folks** - Improve deployment and scaling
+- **DevOps professionals** - Improve deployment and scaling
 - **AI enthusiasts** - Create specialized agents for your domain
 - **Documentation writers** - Help others get started
 
