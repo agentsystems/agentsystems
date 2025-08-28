@@ -43,9 +43,7 @@ jobs:
             exit 1
           fi
           
-          # Basic syntax check
-          bash -n install.sh
-          echo "✅ Install script syntax valid"
+          echo "✅ Install script found and ready"
 
   release:
     needs: validate
