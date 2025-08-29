@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # bootstrap_agentsystems.sh
 # Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
-# Supports interactive mode (default) or non-interactive with --yes/-y
+# Interactive by default; headless/CI via --yes or when not attached to a TTY.
 
-# For maximum compatibility, we'll just remove the bash-specific options when not in bash
+# Use strict mode; degrade gracefully outside bash
 if [ -n "$BASH_VERSION" ]; then
   set -euo pipefail
 else
@@ -29,48 +29,62 @@ for arg in "$@"; do
     -y|--yes) AUTO_CONFIRM=true ;;
   esac
 done
-
-# Auto-confirm if piped (no interactive terminal available)
-if [ ! -t 0 ]; then
+# Auto-confirm in non-interactive contexts (no stdin or no stdout TTY)
+if [ ! -t 0 ] || [ ! -t 1 ]; then
   AUTO_CONFIRM=true
 fi
 
+# POSIX-safe confirm (no bashisms)
 confirm() {
-  local msg="$1"
+  msg=$1
   if $AUTO_CONFIRM; then
     status "$msg -> auto-confirmed"
     return 0
   fi
-  
-  read -r -p "$msg [y/N]: " ans
-  case "${ans}" in
+  printf '%s [y/N]: ' "$msg" >&2
+  IFS= read -r ans
+  case $ans in
     [Yy]|[Yy][Ee][Ss]) return 0 ;;
     *) return 1 ;;
   esac
 }
 
 OS="$(uname -s)"
+is_wsl() { grep -qi microsoft /proc/version 2>/dev/null; }
+
+# --- Sudo guard (avoid hanging prompts in headless mode) ---
+require_sudo() {
+  if ! sudo -n true 2>/dev/null; then
+    if $AUTO_CONFIRM; then
+      die "This step needs sudo. Start a sudo session first (e.g., run 'sudo -v')."
+    else
+      status "Requesting sudo privileges..."
+      sudo -v || die "Could not obtain sudo privileges."
+    fi
+  fi
+}
 
 # --- System Requirements Check ---
 check_requirements() {
   status "Checking system requirements..."
-  
-  # OS already detected as $OS - reuse existing logic patterns
+
   if [ "$OS" = "Darwin" ]; then
     status "✅ macOS detected."
   elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
     status "✅ Ubuntu Linux detected."
+    if is_wsl; then
+      warn "WSL detected. Recommended: Docker Desktop for Windows with WSL integration."
+    fi
   elif [ "$OS" = "Linux" ]; then
     warn "Non-Ubuntu Linux detected. Docker installation may require manual setup."
   else
     die "Unsupported OS: $OS. This script supports macOS and Ubuntu Linux."
   fi
-  
-  # Reuse existing have() function
+
   if ! have python3; then
     die "Python 3 is required but not found. Please install Python 3.8 or later."
   fi
-  
+
   status "✅ System requirements verified."
 }
 
@@ -94,24 +108,20 @@ ensure_pipx() {
       warn "Homebrew not found. Installing Homebrew is recommended for reliable pipx setup on macOS."
       if confirm "Install Homebrew now? (Recommended)"; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        # Add brew to PATH for current session
         if [ -f "/opt/homebrew/bin/brew" ]; then
           export PATH="/opt/homebrew/bin:$PATH"
         elif [ -f "/usr/local/bin/brew" ]; then
           export PATH="/usr/local/bin:$PATH"
         fi
-        if have brew; then
-          brew install pipx
-        else
-          die "Homebrew installation failed. Please install manually and retry."
-        fi
+        have brew || die "Homebrew installation failed. Please install manually and retry."
+        brew install pipx
       else
-        if ! have python3; then die "python3 not found; install Xcode CLT or Python first."; fi
         warn "Installing pipx without Homebrew may require manual PATH configuration."
         python3 -m pip install --user pipx
       fi
     fi
   elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
+    require_sudo
     if ! (sudo apt-get update -y && sudo apt-get install -y pipx); then
       python3 -m pip install --user pipx
     fi
@@ -119,41 +129,32 @@ ensure_pipx() {
     python3 -m pip install --user pipx
   fi
 
-  # Only do manual PATH setup if we didn't use brew (which handles PATH automatically)
-  # Track if we attempted brew installation (even if PATH isn't updated yet)
+  # Detect if pipx came from Homebrew (so we can skip ensurepath)
   used_brew=false
-  if [ "$OS" = "Darwin" ] && have brew; then
-    # If we have brew, we either used it or attempted to use it for pipx
-    # Check installation log or simply assume we used brew if it's available
+  if [ "$OS" = "Darwin" ] && have brew && brew list --formula 2>/dev/null | grep -qx pipx; then
     used_brew=true
   fi
-  
+
   if [ "$used_brew" = false ]; then
     python3 -m pipx ensurepath || true
-    
-    # Ensure PATH is updated for current session
     export PATH="$HOME/.local/bin:$PATH"
-    
-    # Ensure PATH is updated for new shells
+
+    # Ensure PATH is updated for new shells (write once per file)
     add_to_shell_config() {
-      local shell_config="$1"
-      local path_line='export PATH="$HOME/.local/bin:$PATH"'
-      
+      shell_config="$1"
+      path_line='export PATH="$HOME/.local/bin:$PATH"'
       if [ -f "$shell_config" ]; then
-        # Check if PATH is already configured
         if ! grep -q "\$HOME/.local/bin" "$shell_config" 2>/dev/null; then
           echo "$path_line" >> "$shell_config"
           status "Added PATH to $shell_config"
         fi
       fi
     }
-    
-    # Update common shell configs
     add_to_shell_config "$HOME/.bashrc"
     add_to_shell_config "$HOME/.zshrc"
     add_to_shell_config "$HOME/.profile"
   fi
-  
+
   status "✅ pipx installed."
 }
 
@@ -203,7 +204,8 @@ install_docker_macos() {
 install_docker_ubuntu_packages() {
   status "Configuring Docker APT repo and installing Engine..."
   export DEBIAN_FRONTEND=noninteractive
-  
+  require_sudo
+
   sudo apt-get update -y
   sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
@@ -217,7 +219,7 @@ install_docker_ubuntu_packages() {
   # Idempotent sources list setup
   codename="$(lsb_release -cs)"
   list_file=/etc/apt/sources.list.d/docker.list
-  if ! grep -qs '^deb .\+download\.docker\.com/linux/ubuntu' "$list_file" 2>/dev/null; then
+  if ! grep -qs 'download\.docker\.com/linux/ubuntu' "$list_file" 2>/dev/null; then
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${codename} stable" | sudo tee "$list_file" >/dev/null
   fi
 
@@ -226,7 +228,7 @@ install_docker_ubuntu_packages() {
 }
 
 ensure_docker() {
-  local st=0
+  st=0
   docker_status || st=$?
 
   case "$st" in
@@ -256,8 +258,13 @@ ensure_docker() {
   if [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
     if have docker && ! engine_running; then
       if confirm "Start and enable the Docker service now?"; then
+        require_sudo
         sudo systemctl enable --now docker || die "Failed to start docker service."
-        engine_running || die "Docker Engine still not running."
+        if ! engine_running; then
+          warn "Docker is installed but not accessible to the current user."
+          warn "Try: sudo usermod -aG docker \"$(id -un)\" && newgrp docker"
+          die "Then re-run this script."
+        fi
         status "✅ Docker Engine started (Ubuntu)."
       else
         die "User declined to start Docker service."
@@ -266,15 +273,16 @@ ensure_docker() {
     fi
     if confirm "Install Docker Engine packages via APT now?"; then
       install_docker_ubuntu_packages
+      require_sudo
       sudo systemctl enable --now docker
       if ! engine_running; then
         warn "Docker is installed but not accessible to the current user."
-        warn "Try: sudo usermod -aG docker \"$USER\" && newgrp docker"
+        warn "Try: sudo usermod -aG docker \"$(id -un)\" && newgrp docker"
         die "Then re-run this script."
       fi
       status "✅ Docker Engine installed and running (Ubuntu)."
-      if have id && ! id -nG "$USER" 2>/dev/null | grep -qw docker; then
-        warn "To run docker without sudo: sudo usermod -aG docker \"$USER\" && re-login"
+      if ! id -nG "$(id -un)" 2>/dev/null | grep -qw docker; then
+        warn "To run docker without sudo: sudo usermod -aG docker \"$(id -un)\" && newgrp docker"
       fi
     else
       die "User declined Docker installation."
@@ -288,29 +296,22 @@ ensure_docker() {
 # --- agentsystems-sdk ---
 ensure_agentsystems_sdk() {
   status "Ensuring latest agentsystems-sdk via pipx."
-  
-  # Ensure pipx is available - check both Homebrew and pip install locations
+
+  # Ensure pipx is available - check Homebrew and user install locations
   if ! have pipx; then
     if [ "$OS" = "Darwin" ] && have brew; then
-      # Add Homebrew paths first (preferred on macOS with brew)
       if [ -f "/opt/homebrew/bin/pipx" ]; then
         export PATH="/opt/homebrew/bin:$PATH"
       elif [ -f "/usr/local/bin/pipx" ]; then
         export PATH="/usr/local/bin:$PATH"
       fi
     fi
-    # Add pip user install path as fallback
     export PATH="$HOME/.local/bin:$PATH"
-    
-    if ! have pipx; then
-      die "pipx not found. Please open a new terminal and retry."
-    fi
+    have pipx || die "pipx not found. Please open a new terminal and retry."
   fi
-  
+
   if confirm "Proceed with installing/upgrading agentsystems-sdk?"; then
-    # Try upgrade first, fall back to install if not already installed
-    # Use JSON parsing if available, fallback to grep
-    if pipx list --json 2>/dev/null | grep -q '"package":"agentsystems-sdk"' || pipx list | grep -q agentsystems-sdk 2>/dev/null; then
+    if pipx list --json 2>/dev/null | grep -q '"package":"agentsystems-sdk"'; then
       pipx upgrade agentsystems-sdk
     else
       pipx install agentsystems-sdk
@@ -333,41 +334,39 @@ ensure_agentsystems_sdk
 
 # --- Next Steps ---
 print_next_steps() {
-    echo
-    status "🎉 Installation Complete!"
-    echo
-    
-    # Check if agentsystems command is available
-    if ! have agentsystems; then
-        # Check common installation locations
-        agentsystems_found=""
-        for path in \
-            "$HOME/.local/bin/agentsystems" \
-            "/opt/homebrew/bin/agentsystems" \
-            "/usr/local/bin/agentsystems"; do
-            if [ -f "$path" ]; then
-                agentsystems_found="$path"
-                break
-            fi
-        done
-        
-        if [ -n "$agentsystems_found" ]; then
-            warn "agentsystems is installed but not in your current PATH."
-            status "Run this command to update your PATH for this session:"
-            path_dir="$(dirname "$agentsystems_found")"
-            echo "  export PATH=\"$path_dir:\$PATH\""
-            echo
-            status "Or open a new terminal/SSH session for the PATH to be automatically updated."
-            echo
-        fi
+  echo
+  status "🎉 Installation Complete!"
+  echo
+
+  if ! have agentsystems; then
+    agentsystems_found=""
+    for path in \
+      "$HOME/.local/bin/agentsystems" \
+      "/opt/homebrew/bin/agentsystems" \
+      "/usr/local/bin/agentsystems"; do
+      if [ -f "$path" ]; then
+        agentsystems_found="$path"
+        break
+      fi
+    done
+
+    if [ -n "$agentsystems_found" ]; then
+      warn "agentsystems is installed but not in your current PATH."
+      status "Run this command to update your PATH for this session:"
+      path_dir="$(dirname "$agentsystems_found")"
+      echo "  export PATH=\"$path_dir:\$PATH\""
+      echo
+      status "Or open a new terminal/SSH session for the PATH to be automatically updated."
+      echo
     fi
-    
-    status "Next Steps:"
-    echo "  1. Initialize: agentsystems init"
-    echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
-    echo "  3. Access UI: http://localhost:3001"
-    echo
-    status "Documentation: https://github.com/agentsystems/agentsystems"
+  fi
+
+  status "Next Steps:"
+  echo "  1. Initialize: agentsystems init"
+  echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
+  echo "  3. Access UI: http://localhost:3001"
+  echo
+  status "Documentation: https://github.com/agentsystems/agentsystems"
 }
 
 print_next_steps
