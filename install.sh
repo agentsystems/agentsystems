@@ -19,7 +19,7 @@ if command -v tput >/dev/null 2>&1; then
 fi
 status() { echo ">>> $*" >&2; }
 warn()   { echo "${red}WARNING:${plain} $*" >&2; }
-die()    { echo "${red}ERROR:${plain} $*"; exit 1; }
+die()    { echo "${red}ERROR:${plain} $*" >&2; exit 1; }
 have()   { command -v "$1" >/dev/null 2>&1; }
 
 # --- Flags ---
@@ -180,7 +180,11 @@ install_docker_macos() {
   status "Docker not detected."
   status "Docker Desktop is the recommended install method."
   if confirm "Open the Docker Desktop download page now?"; then
-    (have open && open "https://www.docker.com/products/docker-desktop/") || true
+    if $AUTO_CONFIRM; then
+      status "Docker Desktop download: https://www.docker.com/products/docker-desktop/"
+    else
+      (have open && open "https://www.docker.com/products/docker-desktop/") || true
+    fi
   fi
   if ! confirm "After installing, ensure Docker Desktop is running. Continue?"; then
     die "User aborted before Docker Desktop was confirmed running."
@@ -198,17 +202,24 @@ install_docker_macos() {
 
 install_docker_ubuntu_packages() {
   status "Configuring Docker APT repo and installing Engine..."
+  export DEBIAN_FRONTEND=noninteractive
+  
   sudo apt-get update -y
   sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
-  sudo install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  # Idempotent keyring setup
+  if [ ! -f /etc/apt/keyrings/docker.gpg ]; then
+    sudo install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  fi
 
+  # Idempotent sources list setup
   codename="$(lsb_release -cs)"
-  sudo tee /etc/apt/sources.list.d/docker.list >/dev/null <<EOF
-deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${codename} stable
-EOF
+  list_file=/etc/apt/sources.list.d/docker.list
+  if ! grep -qs '^deb .\+download\.docker\.com/linux/ubuntu' "$list_file" 2>/dev/null; then
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${codename} stable" | sudo tee "$list_file" >/dev/null
+  fi
 
   sudo apt-get update -y
   sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -256,7 +267,11 @@ ensure_docker() {
     if confirm "Install Docker Engine packages via APT now?"; then
       install_docker_ubuntu_packages
       sudo systemctl enable --now docker
-      engine_running || die "Docker Engine failed to start after installation."
+      if ! engine_running; then
+        warn "Docker is installed but not accessible to the current user."
+        warn "Try: sudo usermod -aG docker \"$USER\" && newgrp docker"
+        die "Then re-run this script."
+      fi
       status "✅ Docker Engine installed and running (Ubuntu)."
       if have id && ! id -nG "$USER" 2>/dev/null | grep -qw docker; then
         warn "To run docker without sudo: sudo usermod -aG docker \"$USER\" && re-login"
@@ -294,7 +309,8 @@ ensure_agentsystems_sdk() {
   
   if confirm "Proceed with installing/upgrading agentsystems-sdk?"; then
     # Try upgrade first, fall back to install if not already installed
-    if pipx list | grep -q agentsystems-sdk 2>/dev/null; then
+    # Use JSON parsing if available, fallback to grep
+    if pipx list --json 2>/dev/null | grep -q '"package":"agentsystems-sdk"' || pipx list | grep -q agentsystems-sdk 2>/dev/null; then
       pipx upgrade agentsystems-sdk
     else
       pipx install agentsystems-sdk
