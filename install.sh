@@ -134,13 +134,15 @@ add_path_persist() {
   add_line_userbase="export PATH=\"$USER_BASE_BIN:\$PATH\""
 
   add_to_file() {
-    local rc="$1"
+    rc="$1"  # POSIX: no 'local'
     [ -f "$rc" ] || return 0
-    if ! grep -q '\$HOME/.local/bin' "$rc" 2>/dev/null; then
-      echo "$add_line_local" >> "$rc"; status "Added PATH to $rc (~/.local/bin)"
+    if ! grep -Fq '$HOME/.local/bin' "$rc" 2>/dev/null; then
+      echo "$add_line_local" >> "$rc"
+      status "Added PATH to $rc (~/.local/bin)"
     fi
-    if ! grep -q "$USER_BASE_BIN" "$rc" 2>/dev/null; then
-      echo "$add_line_userbase" >> "$rc"; status "Added PATH to $rc ($USER_BASE_BIN)"
+    if ! grep -Fq "$USER_BASE_BIN" "$rc" 2>/dev/null; then
+      echo "$add_line_userbase" >> "$rc"
+      status "Added PATH to $rc ($USER_BASE_BIN)"
     fi
   }
 
