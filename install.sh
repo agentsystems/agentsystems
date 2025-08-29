@@ -249,6 +249,7 @@ ensure_docker() {
     2) ;;            # CLI yes, Engine no
   esac
 
+  # Single consent gate for all Docker setup actions
   if ! confirm "Proceed with Docker setup?"; then
     warn "Skipped Docker setup."
     return 0
@@ -269,6 +270,7 @@ ensure_docker() {
 
   if [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
     if have docker && ! engine_running; then
+      # Separate prompt for starting the service (different action than install)
       if confirm "Start and enable the Docker service now?"; then
         require_sudo
         sudo systemctl enable --now docker || die "Failed to start docker service."
@@ -283,7 +285,10 @@ ensure_docker() {
       fi
       return 0
     fi
-    if confirm "Install Docker Engine packages via APT now?"; then
+
+    # Fresh install path: no second approval; the user already said yes above
+    if ! have docker; then
+      status "Installing Docker Engine packages via APT..."
       install_docker_ubuntu_packages
       require_sudo
       sudo systemctl enable --now docker
@@ -296,13 +301,14 @@ ensure_docker() {
       if [ "$(id -un)" != "root" ] && ! id -nG "$(id -un)" 2>/dev/null | grep -qw docker; then
         warn "To run docker without sudo: sudo usermod -aG docker \"$(id -un)\" && newgrp docker"
       fi
-    else
-      die "User declined Docker installation."
+      return 0
     fi
-    return 0
   fi
 
-  die "Unsupported OS for automatic Docker setup: $OS"
+  # If we reached here on an unsupported Linux
+  if [ "$OS" = "Linux" ]; then
+    die "Unsupported Linux for automatic Docker setup. Please install Docker manually for your distro."
+  fi
 }
 
 # --- agentsystems-sdk ---
