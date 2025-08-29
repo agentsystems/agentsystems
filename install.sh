@@ -293,7 +293,7 @@ ensure_docker() {
         die "Then re-run this script."
       fi
       status "✅ Docker Engine installed and running (Ubuntu)."
-      if ! id -nG "$(id -un)" 2>/dev/null | grep -qw docker; then
+      if [ "$(id -un)" != "root" ] && ! id -nG "$(id -un)" 2>/dev/null | grep -qw docker; then
         warn "To run docker without sudo: sudo usermod -aG docker \"$(id -un)\" && newgrp docker"
       fi
     else
@@ -373,6 +373,10 @@ print_next_steps() {
   echo "  1. Initialize: agentsystems init"
   echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
   echo "  3. Access UI: http://localhost:3001"
+  echo
+  # Always print an immediate-use PATH helper for convenience
+  status "If you ran this via 'curl | sh', you can also run:"
+  echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
   echo
   status "Documentation: https://github.com/agentsystems/agentsystems"
 }
