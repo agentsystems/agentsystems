@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # bootstrap_agentsystems.sh
 # Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
-# Interactive by default; headless/CI via --yes or when not attached to a TTY.
+# Interactive by default. Use --yes for unattended, or --interactive to force prompts even via curl | sh.
 
-# Use strict mode; degrade gracefully outside bash
+# Strict mode; degrade gracefully outside bash
 if [ -n "$BASH_VERSION" ]; then
   set -euo pipefail
 else
@@ -23,40 +23,52 @@ die()    { echo "${red}ERROR:${plain} $*" >&2; exit 1; }
 have()   { command -v "$1" >/dev/null 2>&1; }
 
 # --- Flags ---
-AUTO_CONFIRM=false
+AUTO_CONFIRM=false         # set with -y/--yes
+FORCE_INTERACTIVE=false    # set with --interactive
 for arg in "$@"; do
   case "$arg" in
     -y|--yes) AUTO_CONFIRM=true ;;
+    --interactive) FORCE_INTERACTIVE=true ;;
   esac
 done
-# Auto-confirm in non-interactive contexts (no stdin or no stdout TTY)
-if [ ! -t 0 ] || [ ! -t 1 ]; then
-  AUTO_CONFIRM=true
-fi
 
-# POSIX-safe confirm (no bashisms)
+# --- POSIX-safe confirm (supports curl | sh via /dev/tty) ---
 confirm() {
   msg=$1
+
+  # Explicit unattended mode
   if $AUTO_CONFIRM; then
     status "$msg -> auto-confirmed"
     return 0
   fi
-  printf '%s [y/N]: ' "$msg" >&2
-  IFS= read -r ans
-  case $ans in
-    [Yy]|[Yy][Ee][Ss]) return 0 ;;
-    *) return 1 ;;
-  esac
+
+  # Try to prompt on a real TTY
+  if $FORCE_INTERACTIVE && [ -r /dev/tty ]; then
+    printf '%s [y/N]: ' "$msg" >/dev/tty
+    IFS= read -r ans </dev/tty
+  elif [ -t 0 ]; then
+    printf '%s [y/N]: ' "$msg" >&2
+    IFS= read -r ans
+  elif [ -r /dev/tty ]; then
+    printf '%s [y/N]: ' "$msg" >/dev/tty
+    IFS= read -r ans </dev/tty
+  else
+    # No way to prompt
+    warn "No TTY available for prompts. Re-run with --yes for unattended install or --interactive to force prompts."
+    return 1
+  fi
+
+  case $ans in [Yy]|[Yy][Ee][Ss]) return 0 ;; *) return 1 ;; esac
 }
 
 OS="$(uname -s)"
 is_wsl() { grep -qi microsoft /proc/version 2>/dev/null; }
 
-# --- Sudo guard (avoid hanging prompts in headless mode) ---
+# --- Sudo guard (avoid hanging prompts in unattended/CI) ---
 require_sudo() {
   if ! sudo -n true 2>/dev/null; then
     if $AUTO_CONFIRM; then
-      die "This step needs sudo. Start a sudo session first (e.g., run 'sudo -v')."
+      die "This step needs sudo. Start a sudo session first (e.g., run 'sudo -v') or re-run interactively."
     else
       status "Requesting sudo privileges..."
       sudo -v || die "Could not obtain sudo privileges."
@@ -332,33 +344,29 @@ ensure_docker
 echo
 ensure_agentsystems_sdk
 
-# --- Next Steps ---
+# --- Next Steps / PATH guidance ---
 print_next_steps() {
   echo
   status "🎉 Installation Complete!"
   echo
 
-  if ! have agentsystems; then
-    agentsystems_found=""
-    for path in \
-      "$HOME/.local/bin/agentsystems" \
-      "/opt/homebrew/bin/agentsystems" \
-      "/usr/local/bin/agentsystems"; do
-      if [ -f "$path" ]; then
-        agentsystems_found="$path"
-        break
-      fi
-    done
+  # Find agentsystems even if not on PATH yet
+  agentsystems_found=""
+  for path in \
+    "$HOME/.local/bin/agentsystems" \
+    "/opt/homebrew/bin/agentsystems" \
+    "/usr/local/bin/agentsystems"; do
+    [ -f "$path" ] && { agentsystems_found="$path"; break; }
+  done
 
-    if [ -n "$agentsystems_found" ]; then
-      warn "agentsystems is installed but not in your current PATH."
-      status "Run this command to update your PATH for this session:"
-      path_dir="$(dirname "$agentsystems_found")"
-      echo "  export PATH=\"$path_dir:\$PATH\""
-      echo
-      status "Or open a new terminal/SSH session for the PATH to be automatically updated."
-      echo
-    fi
+  if ! have agentsystems && [ -n "$agentsystems_found" ]; then
+    warn "agentsystems is installed but not in your current PATH."
+    status "If you ran this via 'curl | sh', your shell cannot inherit PATH changes from the script."
+    status "Run this in your current shell to use it immediately:"
+    path_dir="$(dirname "$agentsystems_found")"
+    echo "  export PATH=\"$path_dir:\$PATH\""
+    echo
+    status "For future sessions, a PATH line was added to your shell config."
   fi
 
   status "Next Steps:"
