@@ -91,8 +91,25 @@ ensure_pipx() {
     if have brew; then
       brew install pipx
     else
-      if ! have python3; then die "python3 not found; install Xcode CLT or Python first."; fi
-      python3 -m pip install --user pipx
+      warn "Homebrew not found. Installing Homebrew is recommended for reliable pipx setup on macOS."
+      if confirm "Install Homebrew now? (Recommended)"; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        # Add brew to PATH for current session
+        if [ -f "/opt/homebrew/bin/brew" ]; then
+          export PATH="/opt/homebrew/bin:$PATH"
+        elif [ -f "/usr/local/bin/brew" ]; then
+          export PATH="/usr/local/bin:$PATH"
+        fi
+        if have brew; then
+          brew install pipx
+        else
+          die "Homebrew installation failed. Please install manually and retry."
+        fi
+      else
+        if ! have python3; then die "python3 not found; install Xcode CLT or Python first."; fi
+        warn "Installing pipx without Homebrew may require manual PATH configuration."
+        python3 -m pip install --user pipx
+      fi
     fi
   elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
     if ! (sudo apt-get update -y && sudo apt-get install -y pipx); then
@@ -102,29 +119,40 @@ ensure_pipx() {
     python3 -m pip install --user pipx
   fi
 
-  python3 -m pipx ensurepath || true
+  # Only do manual PATH setup if we didn't use brew (which handles PATH automatically)
+  # Track if we attempted brew installation (even if PATH isn't updated yet)
+  used_brew=false
+  if [ "$OS" = "Darwin" ] && have brew; then
+    # If we have brew, we either used it or attempted to use it for pipx
+    # Check installation log or simply assume we used brew if it's available
+    used_brew=true
+  fi
   
-  # Ensure PATH is updated for current session
-  export PATH="$HOME/.local/bin:$PATH"
-  
-  # Ensure PATH is updated for new shells
-  add_to_shell_config() {
-    local shell_config="$1"
-    local path_line='export PATH="$HOME/.local/bin:$PATH"'
+  if [ "$used_brew" = false ]; then
+    python3 -m pipx ensurepath || true
     
-    if [ -f "$shell_config" ]; then
-      # Check if PATH is already configured
-      if ! grep -q '$HOME/.local/bin' "$shell_config" 2>/dev/null; then
-        echo "$path_line" >> "$shell_config"
-        status "Added PATH to $shell_config"
+    # Ensure PATH is updated for current session
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    # Ensure PATH is updated for new shells
+    add_to_shell_config() {
+      local shell_config="$1"
+      local path_line='export PATH="$HOME/.local/bin:$PATH"'
+      
+      if [ -f "$shell_config" ]; then
+        # Check if PATH is already configured
+        if ! grep -q "\$HOME/.local/bin" "$shell_config" 2>/dev/null; then
+          echo "$path_line" >> "$shell_config"
+          status "Added PATH to $shell_config"
+        fi
       fi
-    fi
-  }
-  
-  # Update common shell configs
-  add_to_shell_config "$HOME/.bashrc"
-  add_to_shell_config "$HOME/.zshrc"
-  add_to_shell_config "$HOME/.profile"
+    }
+    
+    # Update common shell configs
+    add_to_shell_config "$HOME/.bashrc"
+    add_to_shell_config "$HOME/.zshrc"
+    add_to_shell_config "$HOME/.profile"
+  fi
   
   status "✅ pipx installed."
 }
@@ -158,7 +186,12 @@ install_docker_macos() {
     die "User aborted before Docker Desktop was confirmed running."
   fi
   have docker || die "Docker CLI not in PATH. Open a new terminal and retry."
-  for _ in {1..90}; do engine_running && break || sleep 2; done
+  count=0
+  while [ $count -lt 90 ]; do
+    if engine_running; then break; fi
+    sleep 2
+    count=$((count + 1))
+  done
   engine_running || die "Docker Engine not running. Start Docker Desktop and retry."
   status "✅ Docker Engine running (macOS)."
 }
@@ -241,12 +274,27 @@ ensure_docker() {
 ensure_agentsystems_sdk() {
   status "Ensuring latest agentsystems-sdk via pipx."
   
-  # Ensure pipx bin directory is in PATH
-  export PATH="$HOME/.local/bin:$PATH"
+  # Ensure pipx is available - check both Homebrew and pip install locations
+  if ! have pipx; then
+    if [ "$OS" = "Darwin" ] && have brew; then
+      # Add Homebrew paths first (preferred on macOS with brew)
+      if [ -f "/opt/homebrew/bin/pipx" ]; then
+        export PATH="/opt/homebrew/bin:$PATH"
+      elif [ -f "/usr/local/bin/pipx" ]; then
+        export PATH="/usr/local/bin:$PATH"
+      fi
+    fi
+    # Add pip user install path as fallback
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    if ! have pipx; then
+      die "pipx not found. Please open a new terminal and retry."
+    fi
+  fi
   
   if confirm "Proceed with installing/upgrading agentsystems-sdk?"; then
     # Try upgrade first, fall back to install if not already installed
-    if pipx list | grep -q agentsystems-sdk; then
+    if pipx list | grep -q agentsystems-sdk 2>/dev/null; then
       pipx upgrade agentsystems-sdk
     else
       pipx install agentsystems-sdk
@@ -274,13 +322,28 @@ print_next_steps() {
     echo
     
     # Check if agentsystems command is available
-    if ! have agentsystems && [ -f "$HOME/.local/bin/agentsystems" ]; then
-        warn "agentsystems is installed but not in your current PATH."
-        status "Run this command to update your PATH for this session:"
-        echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
-        echo
-        status "Or open a new terminal/SSH session for the PATH to be automatically updated."
-        echo
+    if ! have agentsystems; then
+        # Check common installation locations
+        agentsystems_found=""
+        for path in \
+            "$HOME/.local/bin/agentsystems" \
+            "/opt/homebrew/bin/agentsystems" \
+            "/usr/local/bin/agentsystems"; do
+            if [ -f "$path" ]; then
+                agentsystems_found="$path"
+                break
+            fi
+        done
+        
+        if [ -n "$agentsystems_found" ]; then
+            warn "agentsystems is installed but not in your current PATH."
+            status "Run this command to update your PATH for this session:"
+            path_dir="$(dirname "$agentsystems_found")"
+            echo "  export PATH=\"$path_dir:\$PATH\""
+            echo
+            status "Or open a new terminal/SSH session for the PATH to be automatically updated."
+            echo
+        fi
     fi
     
     status "Next Steps:"
