@@ -70,9 +70,22 @@ require_sudo() {
   fi
 }
 
-# --- System Requirements Check ---
+# --- Python 3.11+ requirement helpers ---
+python_meets_311() {
+  python3 - <<'PY' >/dev/null 2>&1
+import sys; raise SystemExit(0 if sys.version_info >= (3,11) else 1)
+PY
+}
+python_version_str() {
+  python3 - <<'PY' 2>/dev/null || true
+import sys; print(".".join(map(str, sys.version_info[:3])))
+PY
+}
+
+# --- System Requirements Check (includes Python>=3.11) ---
 check_requirements() {
   status "Checking system requirements..."
+
   if [ "$OS" = "Darwin" ]; then
     status "✅ macOS detected."
   elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
@@ -83,7 +96,26 @@ check_requirements() {
   else
     die "Unsupported OS: $OS. This script supports macOS and Ubuntu Linux."
   fi
-  have python3 || die "Python 3 is required but not found. Please install Python 3.8+."
+
+  if ! have python3; then
+    die "Python 3 is required but not found. Please install Python 3.11+ and re-run."
+  fi
+  if ! python_meets_311; then
+    cur="$(python_version_str)"; cur="${cur:-unknown}"
+    warn "Python ${cur} detected. agentsystems-sdk requires Python 3.11+."
+    status "Upgrade options:"
+    if [ "$OS" = "Darwin" ]; then
+      echo "  • Download installer (no admin needed): https://www.python.org/downloads/"
+      have brew && echo "  • Or via Homebrew (admin): brew install python@3.12"
+      have pyenv && echo "  • Or via pyenv (user-space): pyenv install 3.11.9 && pyenv global 3.11.9"
+      echo "  • If Python came from Xcode CLT, you may update dev tools: xcode-select --install"
+    else
+      echo "  • Install a system Python 3.11+ using your distro’s package manager (or ask IT)"
+    fi
+    die "Please upgrade Python to 3.11+ and re-run this script."
+  fi
+
+  status "✅ Python $(python_version_str) meets the 3.11+ requirement."
   status "✅ System requirements verified."
 }
 
@@ -95,9 +127,7 @@ print(str(pathlib.Path(site.USER_BASE) / "bin"))
 PY
 }
 
-# --- PATH persistence (widely accepted behavior) ---
-# Update the *relevant* startup files for the current shell (and ~/.profile if present),
-# but do NOT create files that don't exist.
+# --- PATH persistence (update only files that already exist + ~/.profile) ---
 add_path_persist() {
   USER_BASE_BIN="$(user_base_bin)"
   add_line_local='export PATH="$HOME/.local/bin:$PATH"'
@@ -117,11 +147,10 @@ add_path_persist() {
   case "$(basename "${SHELL:-}")" in
     zsh)  add_to_file "$HOME/.zprofile"; add_to_file "$HOME/.zshrc" ;;
     bash) add_to_file "$HOME/.bash_profile"; add_to_file "$HOME/.bashrc" ;;
-    *)    : ;; # unknown shell; rely on ~/.profile if present
+    *)    : ;;
   esac
   add_to_file "$HOME/.profile"
 
-  # Make both dirs available to this process too
   export PATH="$HOME/.local/bin:$USER_BASE_BIN:$PATH"
 }
 
@@ -303,7 +332,6 @@ ensure_docker() {
 # --- agentsystems-sdk via pipx ---
 ensure_agentsystems_sdk() {
   status "Ensuring latest agentsystems-sdk via pipx."
-  # Make sure pipx is invokable even if not on PATH yet
   export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$(user_base_bin):$PATH"
   if ! python3 -m pipx --version >/dev/null 2>&1; then
     die "pipx not found. Open a new terminal (PATH refresh) or run: export PATH=\"\$HOME/.local/bin:$(user_base_bin):\$PATH\""
