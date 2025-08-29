@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 # bootstrap_agentsystems.sh
 # Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
-# Interactive by default. Use --yes for unattended, or --interactive to force prompts even via curl | sh.
+# Works for both admin and non-admin users.
+# - Admin macOS: Homebrew + pipx (global for user via Brew), Docker Desktop (manual step)
+# - Non-admin macOS/Ubuntu: pipx --user (per-user global via ~/.local/bin), Docker skipped (or install later with admin)
+# Flags:
+#   -y | --yes           : unattended (auto-confirm)
+#   --interactive        : force prompts even via `curl | sh`
+#   --pip-only           : never attempt Homebrew; install pipx via pip --user
+#   --no-docker          : skip Docker steps entirely
 
 # Strict mode; degrade gracefully outside bash
 if [ -n "$BASH_VERSION" ]; then
@@ -22,27 +29,29 @@ warn()   { echo "${red}WARNING:${plain} $*" >&2; }
 die()    { echo "${red}ERROR:${plain} $*" >&2; exit 1; }
 have()   { command -v "$1" >/dev/null 2>&1; }
 
+OS="$(uname -s)"
+
 # --- Flags ---
-AUTO_CONFIRM=false         # set with -y/--yes
-FORCE_INTERACTIVE=false    # set with --interactive
+AUTO_CONFIRM=false
+FORCE_INTERACTIVE=false
+PIP_ONLY=false
+NO_DOCKER=false
 for arg in "$@"; do
   case "$arg" in
     -y|--yes) AUTO_CONFIRM=true ;;
     --interactive) FORCE_INTERACTIVE=true ;;
+    --pip-only) PIP_ONLY=true ;;
+    --no-docker) NO_DOCKER=true ;;
   esac
 done
 
 # --- POSIX-safe confirm (supports curl | sh via /dev/tty) ---
 confirm() {
   msg=$1
-
-  # Explicit unattended mode
   if $AUTO_CONFIRM; then
     status "$msg -> auto-confirmed"
     return 0
   fi
-
-  # Try to prompt on a real TTY
   if $FORCE_INTERACTIVE && [ -r /dev/tty ]; then
     printf '%s [y/N]: ' "$msg" >/dev/tty
     IFS= read -r ans </dev/tty
@@ -53,22 +62,27 @@ confirm() {
     printf '%s [y/N]: ' "$msg" >/dev/tty
     IFS= read -r ans </dev/tty
   else
-    # No way to prompt
     warn "No TTY available for prompts. Re-run with --yes for unattended install or --interactive to force prompts."
     return 1
   fi
-
   case $ans in [Yy]|[Yy][Ee][Ss]) return 0 ;; *) return 1 ;; esac
 }
 
-OS="$(uname -s)"
 is_wsl() { grep -qi microsoft /proc/version 2>/dev/null; }
+
+# Admin detection for macOS (membership in admin group)
+is_admin_macos() {
+  [ "$OS" = "Darwin" ] || return 1
+  /usr/sbin/dseditgroup -o checkmember -m "$(id -un)" admin 2>/dev/null | grep -qi "yes"
+}
+
+have_passwordless_sudo() { sudo -n true 2>/dev/null; }
 
 # --- Sudo guard (avoid hanging prompts in unattended/CI) ---
 require_sudo() {
   if ! sudo -n true 2>/dev/null; then
     if $AUTO_CONFIRM; then
-      die "This step needs sudo. Start a sudo session first (e.g., run 'sudo -v') or re-run interactively."
+      die "This step needs sudo. Start a sudo session first (e.g., 'sudo -v') or re-run interactively."
     else
       status "Requesting sudo privileges..."
       sudo -v || die "Could not obtain sudo privileges."
@@ -79,7 +93,6 @@ require_sudo() {
 # --- System Requirements Check ---
 check_requirements() {
   status "Checking system requirements..."
-
   if [ "$OS" = "Darwin" ]; then
     status "✅ macOS detected."
   elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
@@ -92,12 +105,56 @@ check_requirements() {
   else
     die "Unsupported OS: $OS. This script supports macOS and Ubuntu Linux."
   fi
-
   if ! have python3; then
     die "Python 3 is required but not found. Please install Python 3.8 or later."
   fi
-
   status "✅ System requirements verified."
+}
+
+# --- Preflight plan (explain what's going to happen) ---
+preflight_plan() {
+  status "Preflight checks…"
+  if [ "$OS" = "Darwin" ]; then
+    if $PIP_ONLY; then
+      warn "macOS: Using --pip-only → pipx will be installed in user space (~/.local), no admin required."
+    elif have brew; then
+      status "macOS: Homebrew present."
+    elif is_admin_macos; then
+      status "macOS: Admin rights detected → can install Homebrew if approved."
+    else
+      warn "macOS: No admin rights → cannot install Homebrew."
+      warn "Fallback: pipx user install (~/.local/bin). We'll ensure PATH so 'agentsystems' is available in new shells."
+    fi
+  fi
+
+  if [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release 2>/dev/null; then
+    if $NO_DOCKER; then
+      warn "Ubuntu: --no-docker provided → Docker steps will be skipped."
+    elif have_passwordless_sudo; then
+      status "Ubuntu: sudo available → can install Docker Engine."
+    else
+      warn "Ubuntu: sudo not available → cannot install Docker Engine. Use --no-docker to skip."
+    fi
+  fi
+}
+
+# --- PATH persistence helper ---
+add_path_persist() {
+  path_line='export PATH="$HOME/.local/bin:$PATH"'
+  add_to() {
+    rc="$1"
+    if [ -f "$rc" ]; then
+      if ! grep -q "\$HOME/.local/bin" "$rc" 2>/dev/null; then
+        echo "$path_line" >> "$rc"
+        status "Added PATH to $rc"
+      fi
+    fi
+  }
+  add_to "$HOME/.zprofile"
+  add_to "$HOME/.zshrc"
+  add_to "$HOME/.bash_profile"
+  add_to "$HOME/.bashrc"
+  add_to "$HOME/.profile"
 }
 
 # --- pipx ---
@@ -114,57 +171,65 @@ ensure_pipx() {
   fi
 
   if [ "$OS" = "Darwin" ]; then
-    if have brew; then
+    if $PIP_ONLY; then
+      warn "Using --pip-only: installing pipx in user space."
+      python3 -m pip install --user pipx
+    elif have brew; then
       brew install pipx
     else
-      warn "Homebrew not found. Installing Homebrew is recommended for reliable pipx setup on macOS."
-      if confirm "Install Homebrew now? (Recommended)"; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        if [ -f "/opt/homebrew/bin/brew" ]; then
-          export PATH="/opt/homebrew/bin:$PATH"
-        elif [ -f "/usr/local/bin/brew" ]; then
-          export PATH="/usr/local/bin:$PATH"
+      if is_admin_macos; then
+        warn "Homebrew not found. Installing Homebrew is recommended for reliable pipx setup."
+        if confirm "Install Homebrew now? (Requires admin password)"; then
+          if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+            if [ -f "/opt/homebrew/bin/brew" ]; then
+              export PATH="/opt/homebrew/bin:$PATH"
+            elif [ -f "/usr/local/bin/brew" ]; then
+              export PATH="/usr/local/bin:$PATH"
+            fi
+            if have brew; then
+              brew install pipx
+            else
+              warn "Homebrew installed but not on PATH; falling back to pip user install."
+              python3 -m pip install --user pipx
+            fi
+          else
+            warn "Homebrew installation failed/denied. Falling back to pip user install for pipx."
+            python3 -m pip install --user pipx
+          fi
+        else
+          warn "Skipping Homebrew. Falling back to pip user install for pipx."
+          python3 -m pip install --user pipx
         fi
-        have brew || die "Homebrew installation failed. Please install manually and retry."
-        brew install pipx
       else
-        warn "Installing pipx without Homebrew may require manual PATH configuration."
+        warn "No admin rights on macOS: cannot install Homebrew."
+        warn "Proceeding with pip user install for pipx (per-user global via ~/.local/bin)."
         python3 -m pip install --user pipx
       fi
     fi
   elif [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
-    require_sudo
-    if ! (sudo apt-get update -y && sudo apt-get install -y pipx); then
+    # Prefer apt package (requires sudo), otherwise pip user install
+    if have_passwordless_sudo; then
+      require_sudo
+      if ! (sudo apt-get update -y && sudo apt-get install -y pipx); then
+        python3 -m pip install --user pipx
+      fi
+    else
+      warn "No sudo available → installing pipx in user space."
       python3 -m pip install --user pipx
     fi
   else
     python3 -m pip install --user pipx
   fi
 
-  # Detect if pipx came from Homebrew (so we can skip ensurepath)
+  # Ensure user PATH (when not using brew-managed pipx)
   used_brew=false
   if [ "$OS" = "Darwin" ] && have brew && brew list --formula 2>/dev/null | grep -qx pipx; then
     used_brew=true
   fi
-
   if [ "$used_brew" = false ]; then
     python3 -m pipx ensurepath || true
     export PATH="$HOME/.local/bin:$PATH"
-
-    # Ensure PATH is updated for new shells (write once per file)
-    add_to_shell_config() {
-      shell_config="$1"
-      path_line='export PATH="$HOME/.local/bin:$PATH"'
-      if [ -f "$shell_config" ]; then
-        if ! grep -q "\$HOME/.local/bin" "$shell_config" 2>/dev/null; then
-          echo "$path_line" >> "$shell_config"
-          status "Added PATH to $shell_config"
-        fi
-      fi
-    }
-    add_to_shell_config "$HOME/.bashrc"
-    add_to_shell_config "$HOME/.zshrc"
-    add_to_shell_config "$HOME/.profile"
+    add_path_persist
   fi
 
   status "✅ pipx installed."
@@ -240,6 +305,11 @@ install_docker_ubuntu_packages() {
 }
 
 ensure_docker() {
+  if $NO_DOCKER; then
+    warn "Skipping Docker installation due to --no-docker."
+    return 0
+  fi
+
   st=0
   docker_status || st=$?
 
@@ -270,7 +340,6 @@ ensure_docker() {
 
   if [ "$OS" = "Linux" ] && grep -qi ubuntu /etc/os-release; then
     if have docker && ! engine_running; then
-      # Separate prompt for starting the service (different action than install)
       if confirm "Start and enable the Docker service now?"; then
         require_sudo
         sudo systemctl enable --now docker || die "Failed to start docker service."
@@ -305,29 +374,19 @@ ensure_docker() {
     fi
   fi
 
-  # If we reached here on an unsupported Linux
   if [ "$OS" = "Linux" ]; then
     die "Unsupported Linux for automatic Docker setup. Please install Docker manually for your distro."
   fi
 }
 
-# --- agentsystems-sdk ---
+# --- agentsystems-sdk via pipx (works for admin & non-admin; per-user global if pipx --user) ---
 ensure_agentsystems_sdk() {
   status "Ensuring latest agentsystems-sdk via pipx."
-
-  # Ensure pipx is available - check Homebrew and user install locations
   if ! have pipx; then
-    if [ "$OS" = "Darwin" ] && have brew; then
-      if [ -f "/opt/homebrew/bin/pipx" ]; then
-        export PATH="/opt/homebrew/bin:$PATH"
-      elif [ -f "/usr/local/bin/pipx" ]; then
-        export PATH="/usr/local/bin:$PATH"
-      fi
-    fi
-    export PATH="$HOME/.local/bin:$PATH"
+    # Try common paths in case pipx was just installed
+    export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
     have pipx || die "pipx not found. Please open a new terminal and retry."
   fi
-
   if confirm "Proceed with installing/upgrading agentsystems-sdk?"; then
     if pipx list --json 2>/dev/null | grep -q '"package":"agentsystems-sdk"'; then
       pipx upgrade agentsystems-sdk
@@ -343,6 +402,10 @@ ensure_agentsystems_sdk() {
 # --- Main ---
 status "=== Bootstrapping: pipx • Docker • agentsystems-sdk ==="
 check_requirements
+preflight_plan
+if ! confirm "Proceed with the installation plan above?"; then
+  die "Aborted by user."
+fi
 echo
 ensure_pipx
 echo
@@ -372,7 +435,7 @@ print_next_steps() {
     path_dir="$(dirname "$agentsystems_found")"
     echo "  export PATH=\"$path_dir:\$PATH\""
     echo
-    status "For future sessions, a PATH line was added to your shell config."
+    status "For future sessions, PATH was added to your shell startup files. 'agentsystems' will be available in new terminals."
   fi
 
   status "Next Steps:"
@@ -380,8 +443,7 @@ print_next_steps() {
   echo "  2. Start platform: cd agent-platform-deployments && agentsystems up"
   echo "  3. Access UI: http://localhost:3001"
   echo
-  # Always print an immediate-use PATH helper for convenience
-  status "If you ran this via 'curl | sh', you can also run:"
+  status "Tip: To use it immediately in THIS shell (non-admin path):"
   echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
   echo
   status "Documentation: https://github.com/agentsystems/agentsystems"
