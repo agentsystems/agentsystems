@@ -1,5 +1,12 @@
 # AgentSystems
 
+[![Discord](https://img.shields.io/discord/DISCORD_ID?color=7289da&logo=discord&logoColor=white&style=flat-square)](https://discord.gg/gkfwXsBb)
+[![GitHub stars](https://img.shields.io/github/stars/agentsystems/agentsystems?style=flat-square&logo=github)](https://github.com/agentsystems/agentsystems/stargazers)
+
+> [!NOTE]
+> **Public Beta** - We're building AgentSystems in the open! Official public launch September 15, 2025.
+> Join our [Discord](https://discord.gg/gkfwXsBb) for updates, feedback, and early access to new features.
+
 **Run AI agents on your own terms**
 
 Deploy any AI agent locally. Process data on your hardware. Control your AI infrastructure.
@@ -134,9 +141,8 @@ We're building this in the open and need help from:
 
 ## Community
 
+- [Discord](https://discord.gg/gkfwXsBb) - Chat with other builders
 - [GitHub Issues](https://github.com/agentsystems/agentsystems/issues) - Bug reports and features
-- [Discord](https://discord.gg/agentsystems) - Chat with other builders
-- [Agent Hub](https://github.com/agentsystems/awesome-agents) - Find and share agents
 
 ## License
 
