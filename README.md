@@ -145,4 +145,4 @@ We're building this in the open and need help from:
 
 ## License
 
-All use of this software is governed by the [LICENSE](LICENSE).
+Licensed under the [Apache-2.0 license](./LICENSE).
