@@ -19,9 +19,9 @@ Examples of unacceptable behavior include:
 
 ## Enforcement
 
-Project maintainers are responsible for clarifying standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
+Project maintainers may clarify standards of acceptable behavior and may take corrective action in response to instances of unacceptable behavior at their discretion.
 
-Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct.
+Project maintainers reserve the right to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct.
 
 ## Scope
 
