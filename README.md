@@ -8,7 +8,7 @@
 
 **Run AI agents on your own terms**
 
-Deploy any AI agent locally. Process data on your hardware. Control your AI infrastructure.
+Deploy agents locally. Process data on your hardware. Control your AI infrastructure.
 
 ## Why AgentSystems?
 
@@ -20,7 +20,7 @@ You want to use AI agents, but:
 
 Whether you're a developer experimenting at home, a startup building the next big thing, or an enterprise with compliance requirements, AgentSystems lets you:
 - ✅ **Run locally** - From your laptop to your data center
-- ✅ **Use any AI provider** - OpenAI, Anthropic, Ollama, or self-hosted models
+- ✅ **Use popular providers** - Including OpenAI, Anthropic, Ollama, or self-hosted models
 - ✅ **Deploy community agents** - Access a growing hub of specialized agents
 - ✅ **Build and share** - Create agents that others can run
 - ✅ **Join the agent ecosystem** - Share specialized agents (free or commercial)
