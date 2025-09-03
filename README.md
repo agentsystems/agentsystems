@@ -4,7 +4,7 @@
 
 > [!NOTE]
 > **Public Beta** - We're building AgentSystems in the open! Official public launch September 15, 2025.
-> Join our [Discord](https://discord.gg/gkfwXsBb) for updates, feedback, and early access to new features.
+> Join our [Discord](https://discord.gg/gkfwXsBb) for updates, feedback, and access to new features.
 
 **Run AI agents on your own terms**
 
