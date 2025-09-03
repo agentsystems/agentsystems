@@ -1,6 +1,5 @@
 # AgentSystems
 
-[![Discord](https://img.shields.io/discord/DISCORD_ID?color=7289da&logo=discord&logoColor=white&style=flat-square)](https://discord.gg/gkfwXsBb)
 [![GitHub stars](https://img.shields.io/github/stars/agentsystems/agentsystems?style=flat-square&logo=github)](https://github.com/agentsystems/agentsystems/stargazers)
 
 > [!NOTE]
