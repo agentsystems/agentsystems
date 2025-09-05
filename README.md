@@ -19,8 +19,8 @@ You want to use AI agents, but:
 - **You want control** - Your prompts, your data, your infrastructure
 
 AgentSystems lets you:
-- ✅ **Run agentslocally** - From your laptop to your data center
-- ✅ **Use popular LLM providers** - Including OpenAI, Anthropic, Bedrock, or self-hosted via Ollama
+- ✅ **Run agents locally** - From your laptop to your data center
+- ✅ **Set model connections** - Including OpenAI, Anthropic, Bedrock, or self-hosted via Ollama
 - ✅ **Deploy community agents** - Access a growing hub of specialized agents
 - ✅ **Build and share** - Create agents that others can run
 
@@ -29,7 +29,7 @@ AgentSystems lets you:
 - **Local Data Processing** - Run everything on your own hardware
 - **Agent Hub** - Discover and share community and commercial agents
 - **Container Isolation** - Each agent runs in a separate Docker container
-- **Mix & Match AI Providers** - Use OpenAI, Anthropic, Ollama, or local models
+- **Mix & Match AI Providers** - Use OpenAI, Anthropic, Bedrock, Ollama, and more
 - **Thread-Scoped Execution** - Each request gets its own storage and context
 - **Built-in Egress Control** - Configure URL access for agents
 - **Cryptographic Audit Trail** - Hash-chained logs for operation tracking
