@@ -8,7 +8,7 @@
 
 **A step towards AI sovereignty**
 
-**Run first and third-party AI agents with trust controls.** AgentSystems is designed to let you deploy third-party agents on your own hardware with container isolation, audit logging, and credential separation - designed to keep your data and credentials out of the hands of agent builders. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
+**Run first and third-party AI agents with trust controls.** AgentSystems is designed to let you deploy first and third-party agents on your own hardware with container isolation, audit logging, and credential separation - designed to keep your data and credentials out of the hands of agent builders. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
 
 ## Why AgentSystems?
 
