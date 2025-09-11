@@ -6,7 +6,7 @@
 > **Public Pre-Release** - We're building AgentSystems in the open! Official public launch coming soon.
 > Join our [Discord](https://discord.gg/H26CEWfT) for updates, feedback, and access to new features.
 
-**A step towards AI sovereignty**
+## A step towards AI sovereignty
 
 **Run first and third-party AI agents with trust controls.** AgentSystems is designed to let you deploy first and third-party agents on your own hardware with container isolation, audit logging, and credential separation - designed to keep your data and credentials out of the hands of agent builders. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
 
