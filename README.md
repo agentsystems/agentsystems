@@ -3,12 +3,14 @@
 [![GitHub stars](https://img.shields.io/github/stars/agentsystems/agentsystems?style=flat-square&logo=github)](https://github.com/agentsystems/agentsystems/stargazers)
 
 > [!NOTE]
-> **Public Beta** - We're building AgentSystems in the open! Official public launch September 15, 2025.
+> **Public Pre-Release** - We're building AgentSystems in the open! Official public launch coming soon.
 > Join our [Discord](https://discord.gg/H26CEWfT) for updates, feedback, and access to new features.
 
 **Run AI agents on your own terms**
 
 Deploy agents locally. Process data on your hardware. Control your AI infrastructure.
+
+> **Run first and third-party AI agents with trust controls.** AgentSystems is designed to let you deploy third-party agents on your own hardware with container isolation, audit logging, and credential separation - designed to keep your data and credentials out of the hands of agent builders. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
 
 ## Why AgentSystems?
 
