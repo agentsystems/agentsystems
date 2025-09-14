@@ -36,7 +36,7 @@ AgentSystems lets you:
 - **Smart Resource Management** - Agents start when needed, stop when idle
 - **Multi-Registry Federation** - Pull agents from multiple sources simultaneously
 
-## Quick Start
+## Quick Start (MacOS and Linux)
 
 ```bash
 curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
