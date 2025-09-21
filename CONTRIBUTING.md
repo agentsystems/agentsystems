@@ -50,6 +50,5 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to understand our communit
 
 - **General questions**: Open a discussion in this repository
 - **Bug reports**: Create an issue in the relevant component repository
-- **Real-time chat**: Join our [Discord community](https://discord.gg/H26CEWfT)
 
 We appreciate all contributions, from typo fixes to major features!
