@@ -4,7 +4,7 @@
 
 > [!NOTE]
 > **Public Pre-Release** - We're building AgentSystems in the open! Official public launch coming soon.
-> Join our [Discord](https://discord.gg/H26CEWfT) for updates, feedback, and access to new features.
+> Join our [Discord](https://discord.com/invite/bXgbDNpj) for updates, feedback, and access to new features.
 
 ## A Step Towards AI Sovereignty
 
@@ -137,7 +137,7 @@ We're building this in the open and need help from:
 
 ## Community
 
-- [Discord](https://discord.gg/H26CEWfT) - Chat with other builders
+- [Discord](https://discord.com/invite/bXgbDNpj) - Chat with other builders
 - [GitHub Issues](https://github.com/agentsystems/agentsystems/issues) - Bug reports and features
 
 ## License
