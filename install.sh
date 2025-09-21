@@ -331,18 +331,34 @@ ensure_docker() {
   if [ "$OS" = "Linux" ]; then die "Unsupported Linux for automatic Docker setup. Install Docker manually."; fi
 }
 
+# --- Helper to run pipx (handles both command and module installations) ---
+run_pipx() {
+  # Try standalone pipx command first (Homebrew, apt, etc.)
+  if have pipx; then
+    pipx "$@"
+  # Fall back to Python module invocation (pip --user installs)
+  elif python3 -m pipx --version >/dev/null 2>&1; then
+    python3 -m pipx "$@"
+  else
+    return 1
+  fi
+}
+
 # --- agentsystems-sdk via pipx ---
 ensure_agentsystems_sdk() {
   status "Ensuring latest agentsystems-sdk via pipx."
   export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$(user_base_bin):$PATH"
-  if ! python3 -m pipx --version >/dev/null 2>&1; then
+
+  # Verify pipx is available using our helper
+  if ! run_pipx --version >/dev/null 2>&1; then
     die "pipx not found. Open a new terminal (PATH refresh) or run: export PATH=\"\$HOME/.local/bin:$(user_base_bin):\$PATH\""
   fi
+
   if confirm "Proceed with installing/upgrading agentsystems-sdk?"; then
-    if python3 -m pipx list --json 2>/dev/null | grep -q '"package":"agentsystems-sdk"'; then
-      python3 -m pipx upgrade agentsystems-sdk
+    if run_pipx list --json 2>/dev/null | grep -q '"package":"agentsystems-sdk"'; then
+      run_pipx upgrade agentsystems-sdk
     else
-      python3 -m pipx install agentsystems-sdk
+      run_pipx install agentsystems-sdk
     fi
     status "✅ agentsystems-sdk is up to date."
   else
