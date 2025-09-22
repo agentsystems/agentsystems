@@ -266,6 +266,16 @@ install_docker_macos() {
   have docker || die "Docker CLI not in PATH. Open a new terminal and retry."
   count=0; while [ $count -lt 90 ]; do engine_running && break; sleep 2; count=$((count+1)); done
   engine_running || die "Docker Engine not running. Start Docker Desktop and retry."
+
+  # Fix for Docker Compose plugin detection on macOS (GitHub docker/compose#8986)
+  # Create symlink so Docker can find the compose plugin
+  if [ -d "/Applications/Docker.app/Contents/Resources/cli-plugins" ] && [ ! -e "/usr/local/lib/docker/cli-plugins" ]; then
+    status "Creating Docker Compose plugin symlink for better compatibility..."
+    require_sudo
+    sudo mkdir -p /usr/local/lib/docker
+    sudo ln -s /Applications/Docker.app/Contents/Resources/cli-plugins /usr/local/lib/docker/cli-plugins
+  fi
+
   status "✅ Docker Engine running (macOS)."
 }
 
