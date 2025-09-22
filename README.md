@@ -6,17 +6,17 @@
 > **Public Pre-Release** - We're building AgentSystems in the open! Official public launch coming soon.
 > Join our [Discord](https://discord.com/invite/bXgbDNpj) for updates, feedback, and access to new features.
 
-## A Step Towards AI Sovereignty
+## The Open Platform for AI Agents
 
-**Run first and third-party AI agents with trust controls.** AgentSystems is designed to let you deploy first and third-party agents on your own hardware with container isolation, audit logging, and credential separation - designed to keep your data and credentials out of the hands of agent builders. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
+**Run community and commercial agents on your infrastructure.** AgentSystems lets you deploy powerful AI agents in any cloud or on your own hardware. Container isolation and egress controls constrain what agents can do. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
 
 ## Why AgentSystems?
 
 You want to use AI agents, but:
-- **Privacy and security matters** - Why send your sensitive data to vendors?
+- **Data sovereignty matters** - Process data on your own infrastructure
 - **Costs add up** - Cloud AI services charge premium prices for compute you could run yourself
 - **Vendor lock-in sucks** - Switching between AI providers shouldn't require rewriting everything
-- **You want control** - Your prompts, your data, your infrastructure
+- **You need flexibility** - Run on your laptop, homelab, or cloud infrastructure
 
 AgentSystems lets you:
 - ✅ **Run agents locally** - From your laptop to your data center
@@ -26,8 +26,8 @@ AgentSystems lets you:
 
 ## Key Capabilities
 
-- **Local Data Processing** - Run everything on your own hardware
-- **Agent Hub** - Discover and share community and commercial agents
+- **Local Data Processing** - Process data on your infrastructure
+- **Agent Ecosystem** - Discover and share community and commercial agents
 - **Container Isolation** - Each agent runs in a separate Docker container
 - **Mix & Match AI Providers** - Use OpenAI, Anthropic, Bedrock, Ollama, and more
 - **Thread-Scoped Execution** - Each request gets its own storage and context
