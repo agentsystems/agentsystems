@@ -6,23 +6,22 @@
 > **Public Pre-Release** - We're building AgentSystems in the open! Official public launch coming soon.
 > Join our [Discord](https://discord.com/invite/bXgbDNpj) for updates, feedback, and access to new features.
 
-## The Open Platform for AI Agents
+## The Open Runtime for AI Agents
 
-**Run community and commercial agents on your infrastructure.** AgentSystems lets you deploy powerful AI agents in any cloud or on your own hardware. Container isolation and egress controls constrain what agents can do. One-line install, works with OpenAI, Anthropic, Bedrock, and local models via Ollama.
+**Built with zero-trust principles.** Instead of sending data to external services or building everything yourself, deploy AI agents on YOUR infrastructure. Following zero-trust philosophy, agents run in Docker containers with configurable access policies. One-line install, compatible with OpenAI, Anthropic, Bedrock, and local models via Ollama.
 
-## Why AgentSystems?
+## The Third Way for AI Agents
 
-You want to use AI agents, but:
-- **Data sovereignty matters** - Process data on your own infrastructure
-- **Costs add up** - Cloud AI services charge premium prices for compute you could run yourself
-- **Vendor lock-in sucks** - Switching between AI providers shouldn't require rewriting everything
-- **You need flexibility** - Run on your laptop, homelab, or cloud infrastructure
+**Traditional approaches:**
+- Send your data to AI services (data leaves your control)
+- Build custom agents from scratch (complex and time-consuming)
 
-AgentSystems lets you:
-- ✅ **Run agents locally** - From your laptop to your data center
-- ✅ **Set model connections** - Including OpenAI, Anthropic, Bedrock, or self-hosted via Ollama
-- ✅ **Deploy community agents** - Access a growing hub of specialized agents
-- ✅ **Build and share** - Create agents that others can run
+**The AgentSystems approach:**
+- 🏠 **Run on Your Infrastructure** - Deploy where you control: laptop, server, cloud, or air-gapped networks
+- 🔄 **Agent Portability** - Agents built for AgentSystems can run anywhere the platform runs
+- 🔌 **Provider Flexibility** - Configure connections to OpenAI, Anthropic, Bedrock, or local models
+- 🚀 **Quick Deployment** - One-line install gets you started
+- 📦 **Container Isolation** - Each agent runs in its own Docker container with configurable access
 
 ## Key Capabilities
 
@@ -95,7 +94,7 @@ The gateway discovers agents via Docker labels, routes requests, applies configu
 
 AgentSystems is infrastructure for running AI agents wherever you want - your laptop, home server, or enterprise data center. It handles the complex bits (isolation, orchestration, networking) so you can focus on building cool stuff.
 
-The platform provides container orchestration specifically designed for AI agents, with isolation features, audit trails, and a growing hub where developers share specialized agents (both free and commercial).
+The platform provides container orchestration specifically designed for AI agents, with isolation features, audit trails, and an emerging ecosystem where developers share specialized agents (both free and commercial).
 
 ## Documentation
 
