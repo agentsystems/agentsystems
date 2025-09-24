@@ -8,7 +8,7 @@
 
 ## The Open Runtime for AI Agents
 
-**Built with zero-trust principles.** Instead of sending data to external services or building everything yourself, deploy AI agents on YOUR infrastructure. Following zero-trust philosophy, agents run in Docker containers with configurable access policies. One-line install, compatible with OpenAI, Anthropic, Bedrock, and local models via Ollama.
+**Run third-party and custom agents with zero-trust principles.** Deploy community and commercial AI agents on YOUR infrastructure—from laptop to data center. Access an emerging ecosystem of specialized agents, all executing where you control the compute. Compatible with OpenAI, Anthropic, Bedrock, and local models via Ollama. One-line install.
 
 ## The Third Way for AI Agents
 
