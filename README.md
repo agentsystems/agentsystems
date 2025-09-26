@@ -1,7 +1,5 @@
 # AgentSystems
 
-[![GitHub stars](https://img.shields.io/github/stars/agentsystems/agentsystems?style=flat-square&logo=github)](https://github.com/agentsystems/agentsystems/stargazers)
-
 > [!NOTE]
 > **Public Pre-Release** - We're building AgentSystems in the open! Official public launch coming soon.
 > Join our [Discord](https://discord.com/invite/bXgbDNpj) for updates, feedback, and access to new features.
