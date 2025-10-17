@@ -24,14 +24,14 @@
 ## Key Capabilities
 
 - **Local Data Processing** - Process data on your infrastructure
-- **Agent Ecosystem** - Discover and share community and commercial agents
+- **Agent Ecosystem** - Discover agents via federated, Git-based indexes—publish your own or connect to community indexes
 - **Container Isolation** - Each agent runs in a separate Docker container
 - **Mix & Match AI Providers** - Use OpenAI, Anthropic, Bedrock, Ollama, and more
 - **Thread-Scoped Execution** - Each request gets its own storage and context
 - **Built-in Egress Control** - Configure URL access for agents
 - **Cryptographic Audit Trail** - Hash-chained logs for operation tracking
 - **Smart Resource Management** - Agents start when needed, stop when idle
-- **Multi-Registry Federation** - Pull agents from multiple sources simultaneously
+- **Multi-Registry Federation** - Connect to multiple agent indexes simultaneously—public, private, or community-run
 
 ## Quick Start (MacOS and Linux)
 
@@ -48,6 +48,7 @@ curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download
 | [agentsystems-ui](https://github.com/agentsystems/agentsystems-ui) | Web interface | React, TypeScript |
 | [agentsystems-toolkit](https://github.com/agentsystems/agentsystems-toolkit) | Agent development | Python, LangChain |
 | [agent-template](https://github.com/agentsystems/agent-template) | Reference agent | FastAPI, LangGraph |
+| [agent-index](https://github.com/agentsystems/agent-index) | Federated agent discovery | GitHub Pages, YAML |
 
 ## How It Works
 
@@ -102,6 +103,12 @@ The platform provides container orchestration specifically designed for AI agent
 - **[Agent Development](https://docs.agentsystems.ai/agents)** - Build custom agents
 - **[API Reference](https://docs.agentsystems.ai/api)** - Complete endpoint documentation
 - **[Enterprise Deployment](https://docs.agentsystems.ai/enterprise)** - Production configurations
+
+## For Agent Developers
+
+- **[Agent Development Guide](https://docs.agentsystems.ai/agents)** - Build custom agents
+- **[List on Index](https://docs.agentsystems.ai/deploy-agents/list-on-index)** - Publish your agent for discovery
+- **[Agent Index Repository](https://github.com/agentsystems/agent-index)** - Open-source agent registry
 
 ## Example Use Cases
 
