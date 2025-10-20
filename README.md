@@ -16,9 +16,9 @@ AgentSystems is a self-hosted platform for deploying AI agents from an emerging 
 
 Compatible with major AI providers and local models. Single-command install for macOS/Linux.
 
-## See AgentSystems Explained
+## Overview
 
-**Quick overview (100 seconds):**
+**AgentSystems in 100 Seconds:**
 
 [![AgentSystems in 100 Seconds](https://img.youtube.com/vi/YRDamSh7M-I/maxresdefault.jpg)](https://www.youtube.com/watch?v=YRDamSh7M-I)
 
