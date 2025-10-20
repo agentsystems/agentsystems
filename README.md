@@ -9,10 +9,10 @@
 
 AgentSystems is a self-hosted platform for deploying AI agents from an emerging decentralized marketplace. Deploy agents on your laptop, home server, cloud infrastructure, or air-gapped networks. Built around container isolation, federated discovery, and provider abstraction.
 
-- 🌐 **Federated Agent Marketplace** - Git-based discovery with cryptographic ownership proof, no central gatekeepers
+- 🌐 **Federated Agent Marketplace** - Git-based discovery using GitHub forks, no central gatekeepers
 - 🛡️ **Designed with a Zero-Trust Approach** - Container isolation + egress control for running third-party agents
-- 🔌 **Provider Portability** - Agents work with OpenAI, Anthropic, Bedrock, Ollama—write once, run anywhere
-- 🏠 **Your Infrastructure** - Full control over where your data goes and how agents execute
+- 🔌 **Provider Portability** - Agents integrate with OpenAI, Anthropic, Bedrock, Ollama—write once, run anywhere
+- 🏠 **Your Infrastructure** - Control over where your data goes and how agents execute
 
 Compatible with major AI providers and local models. Single-command install for macOS/Linux.
 
@@ -41,17 +41,17 @@ The platform addresses a fundamental challenge: how do you benefit from speciali
 **The AgentSystems approach:**
 - Run third-party agents in your environment
 - Access a federated marketplace of specialized agents
-- Maintain full control over data and infrastructure
+- Maintain control over data and infrastructure
 
 ### Federated Agent Marketplace
 
 AgentSystems uses a Git-based discovery protocol where:
-- Developers publish agents via GitHub forks with automated ownership verification
+- Developers publish agents via GitHub forks
 - Anyone can operate their own agent index alongside community indexes
 - No central authority controls listing or distribution
-- Ownership proof leverages GitHub's authentication and fork mechanisms
+- Uses GitHub's fork and authentication mechanisms for attribution
 
-This creates a decentralized ecosystem where agent developers can share or commercialize their work while operators maintain complete infrastructure control.
+This creates a decentralized ecosystem where agent developers can share or commercialize their work while operators maintain infrastructure control.
 
 ### Designed with a Zero-Trust Approach
 
@@ -66,31 +66,76 @@ Each agent runs in its own Docker container with:
 Agents built with the AgentSystems toolkit use a `get_model()` abstraction that routes to configured providers:
 - Switch from OpenAI to Anthropic to Ollama through configuration
 - Run the same agent with different models and providers
-- Eliminate vendor lock-in at the agent level
+- Reduce vendor lock-in at the agent level
 
 This is the "write once, run anywhere" moment for AI agents.
 
 ## How It Works
 
 ```mermaid
-graph LR
-    A[Your App] -->|Request| B[Gateway :18080]
-    B --> C[Agent Container]
-    C -->|Results| A
-    B --> D[Audit Logs]
-    C --> E[Local Processing]
-    B --> F[Egress Proxy]
-    F --> G[Allowed URLs]
+graph TB
+    subgraph "Your Infrastructure"
+        App[Your Application]
+        GW[Gateway<br/>:18080]
+
+        subgraph "Agent Containers"
+            A1[Agent A<br/>Third-Party Code]
+            A2[Agent B<br/>Third-Party Code]
+            A3[Agent C<br/>Third-Party Code]
+        end
+
+        subgraph "Zero-Trust Controls"
+            Proxy[Egress Proxy<br/>Default Deny]
+            Creds[Your Credentials<br/>Your Models<br/>Runtime Injection]
+            Audit[Hash-Chained<br/>Audit Logs]
+        end
+
+        Storage[(Thread-Scoped<br/>Artifact Storage)]
+    end
+
+    subgraph "External"
+        Index[Agent Index<br/>Federated Discovery]
+        Allow[approved.com ✓<br/>allowed.com ✓]
+        Block[evil.com ✗]
+        AI[OpenAI/Anthropic<br/>Bedrock/Ollama]
+    end
+
+    Index -.->|Pull Agents| GW
+    App -->|Request| GW
+    GW -->|Route + Inject| A1
+    GW -->|Route + Inject| A2
+    GW -->|Route + Inject| A3
+    Creds -.->|Inject at Runtime| A1
+    Creds -.->|Inject at Runtime| A2
+    A1 -->|Network Call| Proxy
+    A2 -->|Network Call| Proxy
+    A3 -->|Network Call| Proxy
+    Proxy -->|Allowed| Allow
+    Proxy -.->|Blocked| Block
+    Proxy -->|API Calls| AI
+    A1 <-->|Read/Write| Storage
+    A2 <-->|Read/Write| Storage
+    GW -->|Log Operations| Audit
+    A1 -->|Results| GW
+    A2 -->|Results| GW
+    GW -->|Response| App
+
+    style A1 fill:#1a4d5c
+    style A2 fill:#1a4d5c
+    style A3 fill:#1a4d5c
+    style Proxy fill:#2d5f3f
+    style Block fill:#5c1a1a
+    style Audit fill:#3d3d5c
 ```
 
-**Request Flow:**
-1. Your application sends a request to the gateway (port 18080)
-2. Gateway discovers available agents via Docker labels
-3. Request routes to the appropriate agent container (lazy start if needed)
-4. Agent processes data locally, using configured AI providers
-5. Egress proxy enforces URL allowlists for external calls
-6. Results return to your application
-7. All operations logged to PostgreSQL with hash-chaining
+**Architecture Highlights:**
+
+1. **Federated Discovery** - Pull agents from decentralized Git-based indexes
+2. **Runtime Injection** - Your credentials and model connections injected at runtime into agent containers
+3. **Container Isolation** - Each agent runs in its own Docker container with separate namespaces
+4. **Default-Deny Egress** - Configurable network filtering with allowlist-based controls
+5. **Thread-Scoped Storage** - Isolated artifact storage per request
+6. **Tamper-Evident Logging** - Hash-chained audit logs for operation tracking
 
 ## Platform Components
 
@@ -110,7 +155,7 @@ graph LR
 - Network egress filtering via HTTP CONNECT proxy
 - Configurable URL allowlists per agent
 - Hash-chained audit logging for tamper-evident operation tracking
-- Thread-scoped artifact storage (requests can't access each other's files)
+- Thread-scoped artifact storage (isolated per-request file access)
 
 ### Agent Management
 - Automatic agent discovery via Docker labels
