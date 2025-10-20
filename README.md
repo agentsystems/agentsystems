@@ -100,7 +100,7 @@ graph TB
     Agent <-->|Read/Write| Storage
     Agent -->|4. Results| GW
     GW -->|5. Response| App
-    GW -->|Log All Operations| Audit
+    GW -->|Log Operations| Audit
 
     style Agent fill:#1a4d5c
     style Proxy fill:#2d5f3f
