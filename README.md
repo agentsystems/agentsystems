@@ -76,53 +76,33 @@ This is the "write once, run anywhere" moment for AI agents.
 graph TB
     subgraph "Your Infrastructure"
         App[Your Application]
-        GW[Gateway<br/>:18080]
-
-        subgraph "Agent Containers"
-            A1[Agent A<br/>Third-Party Code]
-            A2[Agent B<br/>Third-Party Code]
-            A3[Agent C<br/>Third-Party Code]
-        end
-
-        subgraph "Zero-Trust Controls"
-            Proxy[Egress Proxy<br/>Default Deny]
-            Creds[Your Credentials<br/>Your Models<br/>Runtime Injection]
-            Audit[Hash-Chained<br/>Audit Logs]
-        end
-
-        Storage[(Thread-Scoped<br/>Artifact Storage)]
+        GW[Gateway :18080]
+        Agent[Third-Party Agent<br/>Container]
+        Proxy[Egress Proxy]
+        Storage[Isolated Storage]
+        Audit[Hash-Chained Logs]
     end
 
     subgraph "External"
-        Index[Agent Index<br/>Federated Discovery]
-        Allow[approved.com ✓<br/>allowed.com ✓]
+        Index[Agent Index<br/>GitHub-Based]
+        Allow[approved.com ✓]
         Block[evil.com ✗]
-        AI[OpenAI/Anthropic<br/>Bedrock/Ollama]
+        AI[AI Providers<br/>OpenAI/Anthropic/Ollama]
     end
 
-    Index -.->|Pull Agents| GW
-    App -->|Request| GW
-    GW -->|Route + Inject| A1
-    GW -->|Route + Inject| A2
-    GW -->|Route + Inject| A3
-    Creds -.->|Inject at Runtime| A1
-    Creds -.->|Inject at Runtime| A2
-    A1 -->|Network Call| Proxy
-    A2 -->|Network Call| Proxy
-    A3 -->|Network Call| Proxy
+    Index -.->|Pull Agent| GW
+    App -->|1. Request| GW
+    GW -->|2. Route + Inject Credentials| Agent
+    Agent -->|3. Network Call| Proxy
     Proxy -->|Allowed| Allow
     Proxy -.->|Blocked| Block
-    Proxy -->|API Calls| AI
-    A1 <-->|Read/Write| Storage
-    A2 <-->|Read/Write| Storage
-    GW -->|Log Operations| Audit
-    A1 -->|Results| GW
-    A2 -->|Results| GW
-    GW -->|Response| App
+    Agent -->|API Calls| AI
+    Agent <-->|Read/Write| Storage
+    Agent -->|4. Results| GW
+    GW -->|5. Response| App
+    GW -->|Log All Operations| Audit
 
-    style A1 fill:#1a4d5c
-    style A2 fill:#1a4d5c
-    style A3 fill:#1a4d5c
+    style Agent fill:#1a4d5c
     style Proxy fill:#2d5f3f
     style Block fill:#5c1a1a
     style Audit fill:#3d3d5c
