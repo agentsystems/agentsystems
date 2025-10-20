@@ -7,9 +7,9 @@
 
 **Run third-party AI agents on infrastructure you control.**
 
-AgentSystems is a self-hosted platform for deploying AI agents from an emerging decentralized marketplace. Deploy agents on your laptop, home server, cloud infrastructure, or air-gapped networks. Built around container isolation, federated discovery, and provider abstraction.
+AgentSystems is a self-hosted platform for deploying AI agents from an emerging decentralized ecosystem. Deploy agents on your laptop, home server, cloud infrastructure, or air-gapped networks. Built around container isolation, federated discovery, and provider abstraction.
 
-- 🌐 **Federated Agent Marketplace** - Git-based discovery using GitHub forks, no central gatekeepers
+- 🌐 **Federated Agent Ecosystem** - Git-based agent index using GitHub forks, no central gatekeepers
 - 🛡️ **Designed with a Zero-Trust Approach** - Container isolation + egress control for running third-party agents
 - 🔌 **Provider Portability** - Agents integrate with OpenAI, Anthropic, Bedrock, Ollama—write once, run anywhere
 - 🏠 **Your Infrastructure** - Control over where your data goes and how agents execute
@@ -40,12 +40,12 @@ The platform addresses a fundamental challenge: how do you benefit from speciali
 
 **The AgentSystems approach:**
 - Run third-party agents in your environment
-- Access a federated marketplace of specialized agents
+- Access a federated ecosystem of specialized agents
 - Maintain control over data and infrastructure
 
-### Federated Agent Marketplace
+### Federated Agent Ecosystem
 
-AgentSystems uses a Git-based discovery protocol where:
+AgentSystems uses a Git-based agent index where:
 - Developers publish agents via GitHub forks
 - Anyone can operate their own agent index alongside community indexes
 - No central authority controls listing or distribution
