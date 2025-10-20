@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# bootstrap_agentsystems.sh
+# AgentSystems Installation Script
+# Version: 0.3.3
+#
 # Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
-# Works for both admin and non-admin users.
+# Supports both admin and non-admin users on macOS and Ubuntu Linux.
 # Flags:
 #   -y | --yes        : unattended (auto-confirm)
 #   --interactive     : force prompts even via `curl | sh`
@@ -128,6 +130,9 @@ PY
 }
 
 # --- PATH persistence (update only files that already exist + ~/.profile) ---
+# Adds ~/.local/bin and Python user base bin to PATH in shell startup files.
+# This ensures pipx-installed tools are available in future terminal sessions.
+# Only modifies files that already exist to avoid creating unwanted dotfiles.
 add_path_persist() {
   USER_BASE_BIN="$(user_base_bin)"
   add_line_local='export PATH="$HOME/.local/bin:$PATH"'
@@ -268,7 +273,8 @@ install_docker_macos() {
   engine_running || die "Docker Engine not running. Start Docker Desktop and retry."
 
   # Fix for Docker Compose plugin detection on macOS (GitHub docker/compose#8986)
-  # Create symlink so Docker can find the compose plugin
+  # Docker Desktop stores plugins in /Applications/Docker.app but Docker CLI
+  # expects them at /usr/local/lib/docker/cli-plugins. Create symlink for compatibility.
   if [ -d "/Applications/Docker.app/Contents/Resources/cli-plugins" ] && [ ! -e "/usr/local/lib/docker/cli-plugins" ]; then
     status "Creating Docker Compose plugin symlink for better compatibility..."
     require_sudo
@@ -342,6 +348,9 @@ ensure_docker() {
 }
 
 # --- Helper to run pipx (handles both command and module installations) ---
+# Abstracts the difference between system-installed pipx (Homebrew/apt)
+# and user-installed pipx (pip --user). Tries standalone command first,
+# then falls back to Python module invocation for maximum compatibility.
 run_pipx() {
   # Try standalone pipx command first (Homebrew, apt, etc.)
   if have pipx; then
