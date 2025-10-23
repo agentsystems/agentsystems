@@ -128,7 +128,7 @@ graph TB
 
 ## Comparison to Other Tools
 
-**vs. LangChain/CrewAI:** AgentSystems runs agents built with frameworks—it doesn't replace them. Think Docker for Node.js apps.
+**vs. LangChain/CrewAI:** AgentSystems runs agents built with frameworks — it doesn't replace them. Think Docker for Node.js apps.
 
 **vs. Portkey/LiteLLM:** Different layers. AI gateways route API calls; AgentSystems runs complete applications with workflows and file I/O.
 
