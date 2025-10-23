@@ -3,7 +3,7 @@
 > [!NOTE]
 > **Pre-Release Software** - AgentSystems is in active development. Join our [Discord](https://discord.com/invite/JsxDxQ5zfV) for updates and early access.
 
-## Self-Hosted Platform for AI Agents
+## Self-hosted platform for discovering and running AI agents
 
 > 💡 **Self-hosted platform for discovering and running AI agents.**
 > Deploy specialized agents on your infrastructure—without building from scratch or using SaaS.
