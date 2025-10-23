@@ -5,14 +5,17 @@
 
 ## The Open Runtime for AI Agents
 
+> 💡 **Runtime and ecosystem for AI agents.**
+> Discover and run community agents built with frameworks like LangChain, all on your infrastructure.
+
 **Run third-party AI agents on infrastructure you control.**
 
 AgentSystems is a self-hosted platform for deploying AI agents from an emerging decentralized ecosystem. Deploy agents on your laptop, home server, cloud infrastructure, or air-gapped networks. Built around container isolation, federated discovery, and provider abstraction.
 
 - 🌐 **Federated Agent Ecosystem** - Git-based agent index using GitHub forks, no central gatekeepers
-- 🛡️ **Designed with a Zero-Trust Approach** - Container isolation + egress control for running third-party agents
-- 🔌 **Provider Portability** - Agents integrate with OpenAI, Anthropic, Bedrock, Ollama—write once, run anywhere
-- 🏠 **Your Infrastructure** - Control over where your data goes and how agents execute
+- 🛡️ **Container Isolation & Network Controls** - Sandboxed execution with egress filtering for running third-party agents
+- 🔌 **Provider Portability** - Agents integrate with OpenAI, Anthropic, Bedrock, Ollama—switch via configuration
+- 🏠 **Your Infrastructure** - Deploy agents on your infrastructure with configurable execution controls
 
 Compatible with major AI providers and local models. Single-command install for macOS/Linux.
 
@@ -32,33 +35,35 @@ curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download
 
 ## Why AgentSystems
 
-The platform addresses a fundamental challenge: how do you benefit from specialized AI agents without sending your data to third-party services or building everything from scratch?
+**The problem:** Teams want to use specialized AI agents (codebase migration, research synthesis, visual content analysis, structured data extraction) but face a dilemma:
 
-**Traditional approaches:**
-- Send your data to AI services (lose control)
-- Build custom agents from scratch (time-consuming, complex)
+- 🔒 **SaaS agents** require sending sensitive data to third parties
+- 🛠️ **Building from scratch** takes weeks of development per agent (most teams lack ML expertise)
+- 🐳 **Manual Docker orchestration** means configuring networks, volumes, proxies, and API keys for each agent (time-consuming, error-prone)
 
-**The AgentSystems approach:**
-- Run third-party agents in your environment
-- Access a federated ecosystem of specialized agents
-- Maintain control over data and infrastructure
+**AgentSystems solves this** by providing a standardized runtime and ecosystem:
+
+- **For teams without infrastructure expertise:** One command deploys everything (networking, isolation, audit logging)
+- **For compliance-focused organizations:** Run agents on-premises or air-gapped with configurable egress controls
+- **For developers building products:** Browse community agents instead of building from scratch
+- **For enterprises:** Discover, evaluate, and deploy agents with container isolation and audit logging
 
 ### Federated Agent Ecosystem
 
 AgentSystems uses a Git-based agent index where:
 - Developers publish agents via GitHub forks
-- Anyone can operate their own agent index alongside community indexes
+- Anyone can run their own agent index alongside the AgentSystems community index
 - No central authority controls listing or distribution
 - Uses GitHub's fork and authentication mechanisms for attribution
 
-This creates a decentralized ecosystem where agent developers can share or commercialize their work while operators maintain infrastructure control.
+**Why this matters:** Agent developers can publish once and reach users who self-host, while organizations can create private indexes with company-approved agents.
 
-### Designed with a Zero-Trust Approach
+### Container Isolation & Network Controls
 
 Each agent runs in its own Docker container with:
 - Configurable network egress filtering (HTTP proxy with allowlists)
 - Thread-scoped artifact storage (isolated per-request file access)
-- Hash-chained audit logs for tamper-evident operation tracking
+- Hash-chained audit logs with cryptographic integrity verification
 - Lazy startup and automatic resource management
 
 ### Provider Portability
@@ -67,8 +72,6 @@ Agents built with the AgentSystems toolkit use a `get_model()` abstraction that 
 - Switch from OpenAI to Anthropic to Ollama through configuration
 - Run the same agent with different models and providers
 - Reduce vendor lock-in at the agent level
-
-This is the "write once, run anywhere" moment for AI agents.
 
 ## How It Works
 
@@ -115,7 +118,25 @@ graph TB
 3. **Container Isolation** - Each agent runs in its own Docker container with separate namespaces
 4. **Default-Deny Egress** - Configurable network filtering with allowlist-based controls
 5. **Thread-Scoped Storage** - Isolated artifact storage per request
-6. **Tamper-Evident Logging** - Hash-chained audit logs for operation tracking
+6. **Hash-Chained Audit Logs** - Cryptographic integrity verification for operation tracking
+
+## Who Should Use This?
+
+**Good fit:** Teams without dedicated infrastructure engineers, startups prototyping quickly, organizations requiring on-premises deployment, agent developers seeking distribution.
+
+**Might not need this:** Teams with existing container orchestration and DevOps resources managing agent infrastructure.
+
+---
+
+## Comparison to Other Tools
+
+**vs. LangChain/CrewAI:** AgentSystems runs agents built with frameworks—it doesn't replace them. Think Docker for Node.js apps.
+
+**vs. Portkey/LiteLLM:** Different layers. AI gateways route API calls; AgentSystems runs complete applications with workflows and file I/O.
+
+**vs. Manual Docker:** You can build this yourself. AgentSystems is the pre-built, standardized version.
+
+---
 
 ## Platform Components
 
@@ -130,11 +151,11 @@ graph TB
 
 ## Platform Capabilities
 
-### Security & Isolation
+### Security & Isolation Features
 - Docker container isolation with separate namespaces per agent
 - Network egress filtering via HTTP CONNECT proxy
 - Configurable URL allowlists per agent
-- Hash-chained audit logging for tamper-evident operation tracking
+- Hash-chained audit logging with cryptographic integrity verification
 - Thread-scoped artifact storage (isolated per-request file access)
 
 ### Agent Management
