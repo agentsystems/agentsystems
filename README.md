@@ -8,8 +8,6 @@
 > 💡 **Runtime and ecosystem for AI agents.**
 > Discover and run community agents built with frameworks like LangChain, all on your infrastructure.
 
-**Run third-party AI agents on infrastructure you control.**
-
 AgentSystems is a self-hosted platform for deploying AI agents from an emerging decentralized ecosystem. Deploy agents on your laptop, home server, cloud infrastructure, or air-gapped networks. Built around container isolation, federated discovery, and provider abstraction.
 
 - 🌐 **Federated Agent Ecosystem** - Git-based agent index using GitHub forks, no central gatekeepers
