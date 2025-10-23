@@ -116,13 +116,15 @@ Some customers won't use your agent if it means sending data to your servers. Ag
 - Publish to the agent index
 - Customers who need self-hosting can discover and deploy your agent on their infrastructure
 
-Your agent runs on their infrastructure. You never touch their data. You focus on agent capabilities, they handle their own deployment.
+Your agent runs on their infrastructure. You don't host or store their data. You focus on agent capabilities, they handle their own deployment.
 
 ## Available Agents
 
 Browse community agents at [agentsystems.github.io/agent-index](https://agentsystems.github.io/agent-index/)
 
 The agent index is a federated, Git-based registry where developers can publish agents and users can discover them. Agents are organized by developer namespace and include metadata about capabilities, model requirements, and usage examples.
+
+> **Note:** AgentSystems does not review or endorse software in any index. All agents are published by third-party developers.
 
 *Don't see what you need?* [Build your own agent](https://docs.agentsystems.ai/deploy-agents/quickstart) and publish it to the index.
 
