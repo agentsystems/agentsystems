@@ -167,16 +167,14 @@ graph TB
 
 ## Documentation
 
-- **[Getting Started](https://docs.agentsystems.ai/quickstart)** - Deploy your first agent
-- **[Architecture Overview](https://docs.agentsystems.ai/architecture)** - Deep dive into system design
-- **[Security Model](https://docs.agentsystems.ai/security)** - Isolation, egress control, and audit trails
-- **[Agent Development](https://docs.agentsystems.ai/agents)** - Build custom agents
-- **[API Reference](https://docs.agentsystems.ai/api)** - Complete endpoint documentation
-- **[Enterprise Deployment](https://docs.agentsystems.ai/enterprise)** - Advanced configurations
+- **[Getting Started](https://docs.agentsystems.ai/getting-started)** - Deploy your first agent
+- **[Architecture Overview](https://docs.agentsystems.ai/getting-started/key-concepts)** - Deep dive into system design
+- **[Agent Development](https://docs.agentsystems.ai/deploy-agents/quickstart)** - Build custom agents
+- **[Configuration](https://docs.agentsystems.ai/configuration)** - Advanced configurations
 
 ## For Agent Developers
 
-- **[Build an Agent](https://docs.agentsystems.ai/agents)** - Development guide and best practices
+- **[Build an Agent](https://docs.agentsystems.ai/deploy-agents/quickstart)** - Development guide and best practices
 - **[Publish to Index](https://docs.agentsystems.ai/deploy-agents/list-on-index)** - List your agent for discovery
 - **[Agent Index](https://github.com/agentsystems/agent-index)** - Federated discovery repository
 
