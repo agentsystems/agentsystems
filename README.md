@@ -3,17 +3,18 @@
 > [!NOTE]
 > **Pre-Release Software** - AgentSystems is in active development. Join our [Discord](https://discord.com/invite/JsxDxQ5zfV) for updates and early access.
 
-## The Open Runtime for AI Agents
+## Self-Hosted Platform for AI Agents
 
-> 💡 **Runtime and ecosystem for AI agents.**
-> Discover and run community agents built with frameworks like LangChain, all on your infrastructure.
+> 💡 **Self-hosted platform for discovering and running AI agents.**
+> Deploy specialized agents on your infrastructure—without building from scratch or using SaaS.
 
-AgentSystems is a self-hosted platform for deploying AI agents from an emerging decentralized ecosystem. Deploy agents on your laptop, home server, cloud infrastructure, or air-gapped networks. Built around container isolation, federated discovery, and provider abstraction.
+AgentSystems is a standardized runtime for third-party AI agents. Deploy on your laptop, home server, or air-gapped network. Built with container isolation, federated discovery, and provider abstraction.
 
-- 🌐 **Federated Agent Ecosystem** - Git-based agent index using GitHub forks, no central gatekeepers
-- 🛡️ **Container Isolation & Network Controls** - Sandboxed execution with egress filtering for running third-party agents
-- 🔌 **Provider Portability** - Agents integrate with OpenAI, Anthropic, Bedrock, Ollama—switch via configuration
-- 🏠 **Your Infrastructure** - Deploy agents on your infrastructure with configurable execution controls
+**Key Features:**
+- 🌐 **Federated Agent Ecosystem** - Git-based index, no gatekeepers
+- 🛡️ **Container Isolation** - Separate containers with egress filtering
+- 🔌 **Provider Portability** - Works with OpenAI, Anthropic, Ollama
+- 🏠 **Your Infrastructure** - Deploy on your own servers
 
 Compatible with major AI providers and local models. Single-command install for macOS/Linux.
 
@@ -27,21 +28,37 @@ Compatible with major AI providers and local models. Single-command install for 
 
 ## Quick Start
 
+**One-command install** (macOS/Linux):
+
 ```bash
 curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
 ```
+
+This installs:
+- `agentsystems` CLI
+- Docker (if not present)
+- Required dependencies
+
+**Next steps:**
+```bash
+agentsystems init agentsystems-platform && cd agentsystems-platform
+agentsystems up
+open http://localhost:3001  # Web UI
+```
+
+📖 [Full installation guide](https://docs.agentsystems.ai/getting-started)
 
 ## Why AgentSystems
 
 **The problem:** Teams want to use specialized AI agents (codebase migration, research synthesis, visual content analysis, structured data extraction) but face a dilemma:
 
-- 🔒 **SaaS agents** require sending sensitive data to third parties
+- 🔒 **SaaS agents** require sending data to third parties
 - 🛠️ **Building from scratch** takes weeks of development per agent (most teams lack ML expertise)
 - 🐳 **Manual Docker orchestration** means configuring networks, volumes, proxies, and API keys for each agent (time-consuming, error-prone)
 
-**AgentSystems solves this** by providing a standardized runtime and ecosystem:
+**AgentSystems provides** a standardized runtime and ecosystem:
 
-- **For teams without infrastructure expertise:** One command deploys everything (networking, isolation, audit logging)
+- **For teams without infrastructure expertise:** Single command deployment (networking, isolation, audit logging)
 - **For compliance-focused organizations:** Run agents on-premises or air-gapped with configurable egress controls
 - **For developers building products:** Browse community agents instead of building from scratch
 - **For enterprises:** Discover, evaluate, and deploy agents with container isolation and audit logging
@@ -60,8 +77,8 @@ AgentSystems uses a Git-based agent index where:
 
 Each agent runs in its own Docker container with:
 - Configurable network egress filtering (HTTP proxy with allowlists)
-- Thread-scoped artifact storage (isolated per-request file access)
-- Hash-chained audit logs with cryptographic integrity verification
+- Thread-scoped artifact storage (per-request file directories)
+- Hash-chained audit logs for tamper detection
 - Lazy startup and automatic resource management
 
 ### Provider Portability
@@ -70,6 +87,14 @@ Agents built with the AgentSystems toolkit use a `get_model()` abstraction that 
 - Switch from OpenAI to Anthropic to Ollama through configuration
 - Run the same agent with different models and providers
 - Reduce vendor lock-in at the agent level
+
+## Available Agents
+
+Browse community agents at [agentsystems.github.io/agent-index](https://agentsystems.github.io/agent-index/)
+
+The agent index is a federated, Git-based registry where developers can publish agents and users can discover them. Agents are organized by developer namespace and include metadata about capabilities, model requirements, and usage examples.
+
+*Don't see what you need?* [Build your own agent](https://docs.agentsystems.ai/deploy-agents/quickstart) and publish it to the index.
 
 ## How It Works
 
@@ -80,7 +105,7 @@ graph TB
         GW[Gateway :18080]
         Agent[Third-Party Agent<br/>Container]
         Proxy[Egress Proxy]
-        Storage[Isolated Storage]
+        Storage[Thread Storage]
         Audit[Hash-Chained Logs]
     end
 
@@ -115,20 +140,28 @@ graph TB
 2. **Runtime Injection** - Your credentials and model connections injected at runtime into agent containers
 3. **Container Isolation** - Each agent runs in its own Docker container with separate namespaces
 4. **Default-Deny Egress** - Configurable network filtering with allowlist-based controls
-5. **Thread-Scoped Storage** - Isolated artifact storage per request
-6. **Hash-Chained Audit Logs** - Cryptographic integrity verification for operation tracking
+5. **Thread-Scoped Storage** - Separate artifact directories per request
+6. **Hash-Chained Audit Logs** - Tamper detection for operation tracking
 
 ## Who Should Use This?
 
-**Good fit:** Teams without dedicated infrastructure engineers, startups prototyping quickly, organizations requiring on-premises deployment, agent developers seeking distribution.
+**✅ Good fit:**
+- Teams without dedicated infrastructure engineers
+- Startups prototyping AI products quickly
+- Organizations requiring on-premises or air-gapped deployment
+- Agent developers seeking distribution channels
+- Teams needing audit trails
 
-**Might not need this:** Teams with existing container orchestration and DevOps resources managing agent infrastructure.
+**❌ Might not need this:**
+- Teams with existing container orchestration and dedicated DevOps resources
+- Single-agent deployments where manual Docker setup is sufficient
+- Organizations comfortable with SaaS agent providers
 
 ---
 
 ## Comparison to Other Tools
 
-**vs. LangChain/CrewAI:** AgentSystems runs agents built with frameworks — it doesn't replace them. Think Docker for Node.js apps.
+**vs. LangChain/CrewAI:** AgentSystems is a runtime for agents built with these frameworks. Your agent code uses LangChain; AgentSystems deploys and runs it.
 
 **vs. Portkey/LiteLLM:** Different layers. AI gateways route API calls; AgentSystems runs complete applications with workflows and file I/O.
 
@@ -138,14 +171,20 @@ graph TB
 
 ## Platform Components
 
-| Repository | Purpose | Technology | Latest Version |
-|------------|---------|------------|----------------|
-| [agent-control-plane](https://github.com/agentsystems/agent-control-plane) | Gateway & orchestration | FastAPI, PostgreSQL, Docker | ![Version](https://img.shields.io/github/v/release/agentsystems/agent-control-plane?label=&color=blue) |
-| [agentsystems-sdk](https://github.com/agentsystems/agentsystems-sdk) | CLI deployment tool | Python, Docker Compose | ![Version](https://img.shields.io/github/v/release/agentsystems/agentsystems-sdk?label=&color=blue) |
-| [agentsystems-ui](https://github.com/agentsystems/agentsystems-ui) | Web interface | React, TypeScript | ![Version](https://img.shields.io/github/v/release/agentsystems/agentsystems-ui?label=&color=blue) |
-| [agentsystems-toolkit](https://github.com/agentsystems/agentsystems-toolkit) | Agent development library | Python, LangChain | ![Version](https://img.shields.io/github/v/release/agentsystems/agentsystems-toolkit?label=&color=blue) |
-| [agent-template](https://github.com/agentsystems/agent-template) | Reference implementation | FastAPI, LangGraph | rolling |
-| [agent-index](https://github.com/agentsystems/agent-index) | Federated discovery system | GitHub Pages, YAML | rolling |
+The platform consists of 6 interdependent repositories:
+
+| Component | What It Does | Technology | Latest Version |
+|-----------|--------------|------------|----------------|
+| **[agent-control-plane](https://github.com/agentsystems/agent-control-plane)** | Gateway, orchestration, egress proxy | FastAPI, PostgreSQL | ![Version](https://img.shields.io/github/v/release/agentsystems/agent-control-plane?label=&color=blue) |
+| **[agentsystems-sdk](https://github.com/agentsystems/agentsystems-sdk)** | CLI tool for deployment | Python, Docker | ![Version](https://img.shields.io/github/v/release/agentsystems/agentsystems-sdk?label=&color=blue) |
+| **[agentsystems-ui](https://github.com/agentsystems/agentsystems-ui)** | Web interface for management | React, TypeScript | ![Version](https://img.shields.io/github/v/release/agentsystems/agentsystems-ui?label=&color=blue) |
+| **[agentsystems-toolkit](https://github.com/agentsystems/agentsystems-toolkit)** | Library for building agents | Python, LangChain | ![Version](https://img.shields.io/github/v/release/agentsystems/agentsystems-toolkit?label=&color=blue) |
+| **[agent-template](https://github.com/agentsystems/agent-template)** | Starter template for new agents | FastAPI, LangGraph | rolling |
+| **[agent-index](https://github.com/agentsystems/agent-index)** | Federated agent discovery | GitHub Pages | rolling |
+
+**For most users:** You only interact with `agentsystems-sdk` (CLI) and `agentsystems-ui` (web interface).
+
+**For agent developers:** Use `agent-template` and `agentsystems-toolkit` to build, then publish to `agent-index`.
 
 ## Platform Capabilities
 
@@ -153,8 +192,8 @@ graph TB
 - Docker container isolation with separate namespaces per agent
 - Network egress filtering via HTTP CONNECT proxy
 - Configurable URL allowlists per agent
-- Hash-chained audit logging with cryptographic integrity verification
-- Thread-scoped artifact storage (isolated per-request file access)
+- Hash-chained audit logging for tamper detection
+- Thread-scoped artifact storage (per-request file directories)
 
 ### Agent Management
 - Automatic agent discovery via Docker labels
@@ -172,17 +211,20 @@ graph TB
 
 ## Example Use Cases
 
-**For Developers:**
-- **Personal AI Infrastructure** - Run your own agents without cloud dependencies
-- **Local Development** - Test and debug agent workflows on your laptop
-- **Content Creation** - Process documents and media with specialized agents
-- **Prototyping** - Build AI products with self-hosted infrastructure
+**Personal Projects:**
+- Run a document analysis agent to process research papers
+- Deploy a code review agent for open-source projects
+- Use a data extraction agent to structure web content
 
-**For Organizations:**
-- **Startups** - Deploy AI capabilities without managing complex infrastructure
-- **Research Labs** - Experiment with multi-agent systems and novel architectures
-- **Tech Companies** - Build internal tooling with specialized AI agents
-- **Data Teams** - Process proprietary data with agents that run in your environment
+**Startups & Small Teams:**
+- Build an AI feature without hiring ML engineers
+- Test multiple specialized agents before committing to one approach
+- Run agents on-premises instead of using cloud services
+
+**Enterprise & Compliance:**
+- Deploy agents in air-gapped networks
+- Audit all agent operations with hash-chained logs
+- Run third-party agents with configurable network controls
 
 ## Documentation
 
@@ -193,18 +235,19 @@ graph TB
 
 ## For Agent Developers
 
-- **[Build an Agent](https://docs.agentsystems.ai/deploy-agents/quickstart)** - Development guide and best practices
+- **[Build an Agent](https://docs.agentsystems.ai/deploy-agents/quickstart)** - Development guide
 - **[Publish to Index](https://docs.agentsystems.ai/deploy-agents/list-on-index)** - List your agent for discovery
 - **[Agent Index](https://github.com/agentsystems/agent-index)** - Federated discovery repository
 
 ## Contributing
 
-We're building in the open and welcome contributions:
-- **Agent Developers** - Build specialized agents for the ecosystem
-- **Security Researchers** - Help strengthen isolation and audit mechanisms
-- **Platform Engineers** - Improve deployment, scaling, and orchestration
-- **AI Researchers** - Explore multi-agent architectures and novel approaches
-- **Documentation** - Help developers get started
+We welcome contributions across the stack:
+- 🤖 **Build Agents** - Create specialized agents and publish to the index
+- 🔒 **Security** - Improve isolation, audit mechanisms, or egress controls
+- 📚 **Documentation** - Write guides, tutorials, or API references
+- 🐛 **Bug Reports** - Help identify and fix issues
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## Community
 
