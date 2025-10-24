@@ -61,9 +61,11 @@ Compatible with major AI providers and local models. Single-command install for 
 </tr>
 </table>
 
-### For Teams: Discover and Run
+### For Users: Discover and Run
 
-*GIF coming soon - showing configuration, discovery, deployment, execution, and audit trail*
+<p align="center">
+  <img src="images/agent-user-flow.gif" alt="AgentSystems user workflow - configure models, discover agents, deploy, execute, and view audit trail" width="100%">
+</p>
 
 ## Quick Start
 
@@ -92,31 +94,17 @@ Expected output:
 
 📖 [Full installation guide](https://docs.agentsystems.ai/getting-started)
 
-## Platform Overview
-
-### Web UI Dashboard
-![Dashboard Screenshot](https://via.placeholder.com/800x450/1a4d5c/ffffff?text=Dashboard+Screenshot+Coming+Soon)
-*Agent monitoring and execution history*
-
-### Configuration Management
-![Configuration Screenshot](https://via.placeholder.com/800x450/1a4d5c/ffffff?text=Configuration+Screenshot+Coming+Soon)
-*Model provider and agent configuration*
-
-### Logs
-![Logs Screenshot](https://via.placeholder.com/800x450/1a4d5c/ffffff?text=Logs+Screenshot+Coming+Soon)
-*Agent log viewing*
-
 ## Why AgentSystems
 
-**The problem:** Teams want to use specialized AI agents (codebase migration, research synthesis, visual content analysis, structured data extraction) but face a dilemma:
+**The problem:** Using specialized AI agents (codebase migration, research synthesis, visual content analysis, structured data extraction) presents a dilemma:
 
 - 🔒 **SaaS agents** require sending data to third parties
-- 🛠️ **Building from scratch** takes weeks of development per agent (most teams lack ML expertise)
+- 🛠️ **Building from scratch** takes weeks of development per agent (requires ML expertise)
 - 🐳 **Manual Docker orchestration** means configuring networks, volumes, proxies, and API keys for each agent (time-consuming, error-prone)
 
 **AgentSystems provides** a standardized runtime and ecosystem:
 
-- **For teams without infrastructure expertise:** Single command deployment (networking, separation, audit logging)
+- **For users without infrastructure expertise:** Single command deployment (networking, separation, audit logging)
 - **For organizations requiring on-premises deployment:** Run agents on-premises or air-gapped with configurable egress controls
 - **For developers building products:** Browse community agents instead of building from scratch
 - **For enterprises:** Discover, evaluate, and deploy agents with container isolation and audit logging
