@@ -26,6 +26,45 @@ Compatible with major AI providers and local models. Single-command install for 
 
 📺 **[Full Demo & Walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)** - Installation and UI guide
 
+## How It Works
+
+### For Agent Developers: Publish Once
+
+<table>
+<tr>
+<td width="50%">
+<a href="images/agent-builder-1-scaffold.png">
+<img src="images/agent-builder-1-scaffold.png" alt="Build agent with model requirements">
+</a>
+<p align="center"><em>1. Build agent with model requirements</em></p>
+</td>
+<td width="50%">
+<a href="images/agent-builder-2-registry.png">
+<img src="images/agent-builder-2-registry.png" alt="Push to container registry">
+</a>
+<p align="center"><em>2. Push to container registry</em></p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<a href="images/agent-builder-3-pr.png">
+<img src="images/agent-builder-3-pr.png" alt="Submit to agent index">
+</a>
+<p align="center"><em>3. Submit to agent index (automated merge)</em></p>
+</td>
+<td width="50%">
+<a href="images/agent-builder-4-metadata.png">
+<img src="images/agent-builder-4-metadata.png" alt="Agent available for discovery">
+</a>
+<p align="center"><em>4. Agent available for discovery</em></p>
+</td>
+</tr>
+</table>
+
+### For Teams: Discover and Run
+
+*GIF coming soon - showing configuration, discovery, deployment, execution, and audit trail*
+
 ## Quick Start
 
 **One-command install** (macOS/Linux):
