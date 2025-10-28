@@ -5,7 +5,7 @@
 
 **Self-hosted app store for AI agents.**
 
-Browse a catalog of third-party agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them locally in isolated containers.
+Browse a catalog of community-developed agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them locally in isolated containers.
 
 **Key concepts:**
 - Agents run in separate Docker containers on your machine
@@ -17,6 +17,20 @@ Browse a catalog of third-party agents (document processing, data analysis, work
 **The result:** Specialized AI agents designed to run locally without sending your data to third parties.
 
 📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
+
+## Vision for the Future
+
+Millions of agents are coming. Most will require sending your data to third-party servers.
+
+**There's another path.**
+
+Frontier models keep improving — agents get easier to build with less expertise. Consumer hardware keeps advancing — models run locally without cloud providers.
+
+The infrastructure we build now determines whether we're locked into centralized platforms or not.
+
+AgentSystems is that infrastructure: discover agents, run them locally.
+
+Apache-2.0. No gatekeepers.
 
 ## Installation
 
