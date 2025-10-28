@@ -8,7 +8,8 @@
 Browse a catalog of community-developed agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them locally in isolated containers.
 
 **Key concepts:**
-- Agents run in separate Docker containers on your machine
+- Anyone can publish agents (indexed by GitHub username)
+- You install agents and they run in separate Docker containers on your machine
 - Your credentials are injected at runtime (not shared with agent builders)
 - You specify which external URLs each agent can access via egress proxy (default: none)
 - Agents specify which model they need, then inherit your provider configuration (Ollama, AWS Bedrock, Anthropic API, OpenAI API)
