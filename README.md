@@ -7,18 +7,18 @@
 
 > 💡 **Run specialized AI agents without sending your data to third parties.**
 >
-> Discover agents in a visual catalog → Install with one click → Runs on your infrastructure with your credentials.
+> Self-hosted and open source. Discover agents in a visual catalog → Install with one click → Runs on your infrastructure with your credentials.
 
-**The problem:** Teams need specialized agents (PDF extraction, codebase migration, research synthesis) but:
+**The problem:** You need specialized agents (PDF extraction, codebase migration, research synthesis) but:
 - **SaaS agents** require sending data to third parties
 - **Building from scratch** takes weeks per agent
 - **Manual Docker** means configuring networks, volumes, and API keys for each agent
 
-**AgentSystems provides:** App store UI + standardized runtime + federated discovery
+**AgentSystems provides:** Open-source app store UI + standardized runtime + federated discovery
 
-- **For users:** Browse and install agents like mobile apps—designed for ease of deployment
-- **For developers:** Publish once, reach customers who self-host (you don't host their data)
-- **For enterprises:** On-premises deployment with container isolation and audit trails
+- **For anyone:** Browse and install agents like mobile apps—designed for ease of deployment
+- **For developers:** Publish once, reach users who self-host (you don't host their data)
+- **For organizations:** On-premises deployment with container isolation and audit trails
 
 **Key Features:**
 - 🌐 **Federated Discovery** - Git-based index, no gatekeepers
