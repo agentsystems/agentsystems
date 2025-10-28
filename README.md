@@ -3,20 +3,52 @@
 > [!NOTE]
 > **Pre-Release Software** - AgentSystems is in active development. Join our [Discord](https://discord.com/invite/JsxDxQ5zfV) for updates and early access.
 
-## Self-hosted platform for discovering and running AI agents
+## Self-hosted app store for AI agents
 
-> 💡 **Self-hosted platform for discovering and running AI agents.**
-> Deploy specialized agents on your infrastructure—without building from scratch or using SaaS.
+> 💡 **Run specialized AI agents without sending your data to third parties.**
+>
+> Discover agents in a visual catalog → Install with one click → Runs on your infrastructure with your credentials.
 
-AgentSystems is a standardized runtime for third-party AI agents. Deploy on your laptop, home server, or air-gapped network. Built with container isolation, federated discovery, and provider abstraction.
+**The problem:** Teams need specialized agents (PDF extraction, codebase migration, research synthesis) but:
+- **SaaS agents** require sending data to third parties
+- **Building from scratch** takes weeks per agent
+- **Manual Docker** means configuring networks, volumes, and API keys for each agent
+
+**AgentSystems provides:** App store UI + standardized runtime + federated discovery
+
+- **For users:** Browse and install agents like mobile apps—designed for ease of deployment
+- **For developers:** Publish once, reach customers who self-host (you don't host their data)
+- **For enterprises:** On-premises deployment with container isolation and audit trails
 
 **Key Features:**
-- 🌐 **Federated Agent Ecosystem** - Git-based index, no gatekeepers
-- 🛡️ **Container Isolation** - Separate containers with egress filtering
-- 🔌 **Provider Portability** - Supports OpenAI, Anthropic, Ollama
-- 🏠 **Your Infrastructure** - Deploy on your own servers
+- 🌐 **Federated Discovery** - Git-based index, no gatekeepers
+- 🛡️ **Container Isolation** - Each agent in separate container with egress filtering
+- 🔌 **Provider Portability** - Switch OpenAI → Anthropic → Ollama via config
+- 🏠 **Your Infrastructure** - Laptop, server, or air-gapped network
 
-Compatible with major AI providers and local models. Single-command install for macOS/Linux.
+## Try It Now
+
+See the complete workflow—install to running your first agent:
+
+```bash
+# Install and start
+curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
+agentsystems init my-agents && cd my-agents
+agentsystems up
+
+# Open web UI
+open http://localhost:3001
+
+# In the UI: Click "Discover" → Find an agent → Click "Add" → Invoke it
+```
+
+**What just happened:**
+- Third-party agent runs on **your infrastructure** (not their servers)
+- Your API credentials stay local (agent builder doesn't receive them)
+- Agent runs **isolated** in container with network controls
+- Processes data locally on your infrastructure
+
+📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
 
 ## Overview
 
@@ -61,7 +93,17 @@ Compatible with major AI providers and local models. Single-command install for 
 </tr>
 </table>
 
-### For Users: Discover and Run
+### For Users: Browse → Install → Run (App Store Model)
+
+**Visual Discovery:**
+- Browse agent catalog with search and filters in the web UI
+- View agent cards with descriptions and developer info
+- Click "Add" to install
+
+**Automated Deployment:**
+- Review and approve network permissions
+- Agent deploys to your infrastructure as isolated container
+- Credentials injected at runtime (not stored in agent containers or index)
 
 <p align="center">
   <img src="images/agent-user-flow.gif" alt="AgentSystems user workflow - configure models, discover agents, deploy, execute, and view audit trail" width="100%">
@@ -324,17 +366,50 @@ Build specialized agents that work together instead of monolithic agents that do
 
 ## Frequently Asked Questions
 
+**Q: I already have LangChain and can switch models. Why do I need this?**
+
+A: AgentSystems isn't about *building* agents (use LangChain for that). It's about **discovering and running third-party agents** on your infrastructure.
+
+Think of it this way:
+- **LangChain/CrewAI** = How you *build* agents
+- **AgentSystems** = How users *discover and run* your agent without you hosting it
+
+**Q: I already have Docker. What does this add?**
+
+A: You could build this yourself! AgentSystems provides the pre-built infrastructure:
+- Visual discovery UI (instead of Docker Hub search)
+- Credential injection (your API keys stay local, agent builder doesn't receive them)
+- Egress filtering (approve which URLs each agent can access)
+- Thread-scoped artifact management
+- Audit logs
+
+AgentSystems provides this infrastructure, whether you're running one agent or many.
+
+**Q: How is this different from AI gateways (Portkey, LiteLLM)?**
+
+A: Different layers:
+- **AI gateways** route LLM API calls
+- **AgentSystems** runs complete applications with workflows, file I/O, and multi-step processes
+
+**Q: Can I use my existing agent (agno, CrewAI, custom)?**
+
+A: Yes! Wrap it in FastAPI with three endpoints (`/invoke`, `/health`, `/metadata`), containerize it, and publish to the index. See the [agent-template](https://github.com/agentsystems/agent-template).
+
+**Q: Is this like MCP (Model Context Protocol)?**
+
+A: Different layers. MCP = tools that agents *call*. AgentSystems = runtime for complete *agents*. Your agent might use MCP tools internally.
+
 **Q: Can I run my own private agent index?**
+
 A: Yes. The agent index is Git-based and federated. You can run your own index alongside the public one, or use only private indexes.
 
-**Q: What happens when AgentSystems releases updates?**
-A: You control when to upgrade. There are no forced updates.
-
 **Q: Can agents call other agents to create workflows?**
+
 A: Yes. Agents can invoke other agents via the gateway API. Thread-scoped storage enables passing data between workflow steps.
 
-**Q: Do I need to modify my existing LangChain/LangGraph agents?**
-A: Minimal changes. Wrap your agent logic in a FastAPI app with `/invoke`, `/health`, and `/metadata` endpoints. See the [agent template](https://github.com/agentsystems/agent-template) for the pattern.
+**Q: Can I see what the install script does?**
+
+A: Yes! View the source at [install.sh](https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh). The script installs the AgentSystems CLI, Docker (if needed), and required dependencies.
 
 ## Documentation
 
