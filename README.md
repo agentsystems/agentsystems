@@ -25,7 +25,7 @@ Millions of agents are coming. Most will require sending your data to third-part
 
 **There's another path.**
 
-Frontier models keep improving — agents get easier to build with less expertise. Consumer hardware keeps advancing — models run locally without cloud providers. [NVIDIA's research](https://arxiv.org/abs/2506.02153) shows why this works: small language models are the future of agentic AI. Most agent tasks are specialized and repetitive—they don't need massive generalist models.
+Frontier models keep improving — agents get easier to build with less expertise. Consumer hardware keeps advancing — models run locally without cloud providers. [NVIDIA's research](https://arxiv.org/abs/2506.02153) shows why this works: small language models are the future of agentic AI. Most agent tasks are specialized and repetitive — they don't need massive generalist models.
 
 The infrastructure we build now determines whether we're locked into centralized platforms or not.
 
