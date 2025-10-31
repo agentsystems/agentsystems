@@ -43,9 +43,13 @@ agentsystems up
 
 **That's it.** Open http://localhost:3001 and start discovering agents.
 
+> Prefer manual installation? See the [manual installation guide](https://docs.agentsystems.ai/getting-started/manual-installation).
+
 **What's running:** Gateway (API), UI (web interface), egress proxy (network controls), and PostgreSQL (audit logs).
 
 **Next:** In the UI, click "Discover" → Find an agent → Click "Add" → Invoke it
+
+> Have an NVIDIA GPU? See the [GPU acceleration guide](https://docs.agentsystems.ai/configuration/gpu-acceleration).
 
 ## How It Works
 
