@@ -7,6 +7,10 @@
 
 Browse a catalog of community-developed agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them locally in isolated containers.
 
+**The problem:** Most specialized AI agents today require sending your data to third-party SaaS platforms. Building your own agents requires weeks of development. Running third-party agents manually requires configuring Docker networks, volumes, proxies, and credentials for each one.
+
+**AgentSystems provides:** Infrastructure for discovering and running third-party agents locally with container isolation, credential injection, and egress controls.
+
 **Key concepts:**
 - Anyone can publish agents (indexed by GitHub username)
 - You install agents and they run in separate Docker containers on your machine
@@ -30,6 +34,8 @@ Frontier models keep improving — agents get easier to build with less expertis
 The infrastructure we build now determines whether we're locked into centralized platforms or not.
 
 AgentSystems is that infrastructure: discover agents, run them locally.
+
+Someone has to build the rails so the trains can run.
 
 Apache-2.0. No gatekeepers.
 
