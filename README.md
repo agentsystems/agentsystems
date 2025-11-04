@@ -5,11 +5,11 @@
 
 **Self-hosted app store for AI agents.**
 
-Browse a catalog of community-developed agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them locally in isolated containers.
+Browse a catalog of community-developed agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them on your infrastructure in isolated containers.
 
 **The problem:** Most specialized AI agents today require sending your data to third-party SaaS platforms. Building your own agents requires weeks of development. Running third-party agents manually requires configuring Docker networks, volumes, proxies, and credentials for each one.
 
-**AgentSystems provides:** Infrastructure for discovering and running third-party agents locally with container isolation, credential injection, and egress controls.
+**AgentSystems provides:** Infrastructure for discovering and running third-party agents on your infrastructure with container isolation, credential injection, and egress controls.
 
 **Key concepts:**
 - Anyone can publish agents (indexed by GitHub username)
@@ -19,7 +19,7 @@ Browse a catalog of community-developed agents (document processing, data analys
 - Agents specify which model they need, then inherit your provider configuration (Ollama, AWS Bedrock, Anthropic API, OpenAI API)
 - Hash-chained audit logs track execution history
 
-**The result:** Specialized AI agents designed to run locally without sending your data to third parties.
+**The result:** Specialized AI agents designed to run on your infrastructure without sending your data to third parties.
 
 📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
 
@@ -33,7 +33,7 @@ Frontier models keep improving — agents get easier to build with less expertis
 
 The infrastructure we build now determines whether we're locked into centralized platforms or not.
 
-AgentSystems is that infrastructure: discover agents, run them locally.
+AgentSystems is that infrastructure: discover agents, run them where you control the data.
 
 Someone has to build the rails so the trains can run.
 
@@ -143,7 +143,7 @@ graph TB
 
 **Agent frameworks (LangChain, Agno, CrewAI)?** Those help you *build* agents. AgentSystems helps you *discover and run* agents built by others. You can build with those frameworks and publish to AgentSystems.
 
-**Cloud-hosted agents (Harvey, Artisan)?** Your data goes to their servers. AgentSystems runs on your machine — designed to keep your data local.
+**Cloud-hosted agents (Harvey, Artisan)?** Your data goes to their servers. AgentSystems runs on your infrastructure — designed to keep your data under your control.
 
 **Deployment platforms (Coolify, Heroku)?** Those deploy web apps. AgentSystems deploys AI agents with agent-specific features: model routing, egress controls, thread-scoped storage, federated discovery.
 
