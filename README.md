@@ -15,7 +15,7 @@ Most AI companies are building for the wrong future. AI distribution is invertin
 - As AI transforms white-collar work, millions of subject matter experts (accountants, analysts, consultants, underwriters) will create agents to leverage their domain expertise. A tax accountant builds an agent for startup equity compensation. An insurance underwriter builds one for risk assessment.
 - The market floods with specialized agents for every niche task
 
-**Two problems emerge:** When agents are everywhere, how do you discover them? How do you run third-party code on your infrastructure?
+**Two problems emerge: discovery and trust.** When agents are everywhere, how do you discover them? How do you run third-party agents without exposing your data or credentials?
 
 **AgentSystems provides infrastructure for both:**
 
