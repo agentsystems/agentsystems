@@ -8,10 +8,12 @@
 Most AI companies are building for the wrong future. They're optimizing for centralized APIs. But AI distribution is inverting: agents will run where data lives, not the other way around.
 
 **Why the inversion is inevitable:**
-
-Frontier models, open-source models, and local hardware all keep improving. Building agents becomes trivial. Models can run locally or via your own cloud accounts — reducing dependency on third-party agent platforms.
-
-As AI transforms white-collar work, millions of subject matter experts — accountants, analysts, consultants, underwriters — will create agents to leverage their domain expertise. A tax accountant builds an agent for startup equity compensation. An insurance underwriter builds one for risk assessment. The market floods with specialized agents for every niche task.
+- Frontier models, open-source models, and local hardware all keep improving
+- Building agents is quickly becoming trivial
+- Models can run locally or via your own cloud accounts — reducing dependency on third-party agent platforms
+- [NVIDIA's research](https://arxiv.org/abs/2506.02153) shows small language models excel at specialized tasks — most agent workloads don't need massive generalist models
+- As AI transforms white-collar work, millions of subject matter experts (accountants, analysts, consultants, underwriters) will create agents to leverage their domain expertise. A tax accountant builds an agent for startup equity compensation. An insurance underwriter builds one for risk assessment.
+- The market floods with specialized agents for every niche task
 
 **Two problems emerge:** When agents are everywhere, how do you discover them? How do you run third-party code on your infrastructure?
 
@@ -32,18 +34,6 @@ As AI transforms white-collar work, millions of subject matter experts — accou
 Infrastructure for a commoditized agent future. Discover agents, install them, run them on your infrastructure.
 
 📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
-
-## Vision for the Future
-
-When agents commoditize, the world needs infrastructure for distribution and trust.
-
-[NVIDIA's research](https://arxiv.org/abs/2506.02153) shows why this works: small language models are the future of agentic AI. Most agent tasks are specialized and repetitive — they don't need massive generalist models.
-
-The infrastructure we build now determines whether we're locked into centralized platforms or not.
-
-**AgentSystems is that infrastructure:** Federated discovery, security-focused design, provider-agnostic runtime. Apache-2.0. No gatekeepers.
-
-Someone has to build the rails so the trains can run.
 
 ## Installation
 
