@@ -5,7 +5,7 @@
 
 **Self-hosted app store and runtime for third-party AI agents.**
 
-Most AI companies are building for the wrong future. They're optimizing for centralized APIs. But AI distribution is inverting: agents will run where data lives, not the other way around.
+Most AI companies are building for the wrong future. AI distribution is inverting: instead of sending data to agents, agents will run where data lives.
 
 **Why the inversion is inevitable:**
 - Frontier models, open-source models, and local hardware all keep improving
@@ -17,7 +17,7 @@ Most AI companies are building for the wrong future. They're optimizing for cent
 
 **Two problems emerge:** When agents are everywhere, how do you discover them? How do you run third-party code on your infrastructure?
 
-**AgentSystems provides infrastructure for both** with federated discovery and security-focused design.
+**AgentSystems provides infrastructure for both:**
 
 **Distribution:**
 - Self-hosted catalog indexed by GitHub username
@@ -31,7 +31,7 @@ Most AI companies are building for the wrong future. They're optimizing for cent
 - Provider abstraction (agents inherit your OpenAI/Anthropic/Bedrock/Ollama config)
 - Hash-chained audit logs
 
-Infrastructure for a commoditized agent future. Discover agents, install them, run them on your infrastructure.
+Infrastructure for a commoditized agent future.
 
 📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
 
