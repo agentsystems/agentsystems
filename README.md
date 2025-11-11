@@ -38,6 +38,7 @@ Infrastructure for a commoditized agent future.
 ## Installation
 
 ```bash
+# macOS / Linux
 curl -fsSL https://github.com/agentsystems/agentsystems/releases/latest/download/install.sh | sh
 agentsystems init agent-platform && cd agent-platform
 agentsystems up
