@@ -3,41 +3,39 @@
 > [!NOTE]
 > **Pre-Release Software** - AgentSystems is in active development. Join our [Discord](https://discord.com/invite/JsxDxQ5zfV) for updates and early access.
 
-**Self-hosted app store for AI agents.**
+**Self-hosted app store and runtime for third-party AI agents.**
 
-Browse a catalog of community-developed agents (document processing, data analysis, workflow automation — sky's the limit), install them, and run them on your infrastructure in isolated containers.
+Most AI companies are building for the wrong future. They're optimizing for centralized APIs. But AI distribution is inverting: agents will run where data lives, not the other way around.
 
-**The problem:** Most specialized AI agents today require sending your data to third-party SaaS platforms. Building your own agents requires weeks of development. Running third-party agents manually requires configuring Docker networks, volumes, proxies, and credentials for each one.
+**Why the inversion is inevitable:**
 
-**AgentSystems provides:** Infrastructure for discovering and running third-party agents on your infrastructure with container isolation, credential injection, and egress controls.
+Frontier models, open-source models, and local hardware all keep improving. Building agents becomes trivial. Models run on-prem without cloud dependencies.
 
-**Key concepts:**
-- Anyone can publish agents (indexed by GitHub username)
-- You install agents and they run in separate Docker containers on your machine
-- Your credentials are injected at runtime (not shared with agent builders)
-- You specify which external URLs each agent can access via egress proxy (default: none)
-- Agents specify which model they need, then inherit your provider configuration (Ollama, AWS Bedrock, Anthropic API, OpenAI API)
-- Hash-chained audit logs track execution history
+AI displaces millions of white-collar specialists—lawyers, accountants, analysts, consultants. They create agents leveraging that expertise. The market floods with specialized agents for every niche task.
 
-**The result:** Specialized AI agents designed to run on your infrastructure without sending your data to third parties.
+**Two problems emerge:** When agents are everywhere, how do you discover them? How do you run third-party code on your infrastructure?
+
+**AgentSystems provides infrastructure for both** with federated discovery and security-focused design.
+
+**Distribution:** Self-hosted catalog. Anyone can publish (indexed by GitHub username). Federated Git-based discovery with auto-merge. Permissionless.
+
+**Security model:** Container isolation, runtime credential injection (separated from agent provider), default-deny egress with per-agent allowlists, provider abstraction (agents inherit your OpenAI/Anthropic/Bedrock/Ollama config), hash-chained audit logs.
+
+Discover agents, install them, run them on your infrastructure.
 
 📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
 
 ## Vision for the Future
 
-Millions of agents are coming. Most will require sending your data to third-party servers.
+When agents commoditize, the world needs infrastructure for distribution and trust.
 
-**There's another path.**
-
-Frontier models keep improving — agents get easier to build with less expertise. Consumer hardware keeps advancing — models run locally without cloud providers. [NVIDIA's research](https://arxiv.org/abs/2506.02153) shows why this works: small language models are the future of agentic AI. Most agent tasks are specialized and repetitive — they don't need massive generalist models.
+[NVIDIA's research](https://arxiv.org/abs/2506.02153) shows why this works: small language models are the future of agentic AI. Most agent tasks are specialized and repetitive — they don't need massive generalist models.
 
 The infrastructure we build now determines whether we're locked into centralized platforms or not.
 
-AgentSystems is that infrastructure: discover agents, run them where you control the data.
+**AgentSystems is that infrastructure:** Federated discovery, security-focused design, provider-agnostic runtime. Apache-2.0. No gatekeepers.
 
 Someone has to build the rails so the trains can run.
-
-Apache-2.0. No gatekeepers.
 
 ## Installation
 
