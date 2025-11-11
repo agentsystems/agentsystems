@@ -9,19 +9,27 @@ Most AI companies are building for the wrong future. They're optimizing for cent
 
 **Why the inversion is inevitable:**
 
-Frontier models, open-source models, and local hardware all keep improving. Building agents becomes trivial. Models run on-prem without cloud dependencies.
+Frontier models, open-source models, and local hardware all keep improving. Building agents becomes trivial. Models can run locally or via your own cloud accounts — reducing dependency on third-party agent platforms.
 
-AI displaces millions of white-collar specialists—lawyers, accountants, analysts, consultants. They create agents leveraging that expertise. The market floods with specialized agents for every niche task.
+As AI transforms white-collar work, millions of subject matter experts — accountants, analysts, consultants, underwriters — will create agents to leverage their domain expertise. A tax accountant builds an agent for startup equity compensation. An insurance underwriter builds one for risk assessment. The market floods with specialized agents for every niche task.
 
 **Two problems emerge:** When agents are everywhere, how do you discover them? How do you run third-party code on your infrastructure?
 
 **AgentSystems provides infrastructure for both** with federated discovery and security-focused design.
 
-**Distribution:** Self-hosted catalog. Anyone can publish (indexed by GitHub username). Federated Git-based discovery with auto-merge. Permissionless.
+**Distribution:**
+- Self-hosted catalog indexed by GitHub username
+- Federated Git-based discovery with auto-merge
+- Permissionless publishing
 
-**Security model:** Container isolation, runtime credential injection (separated from agent provider), default-deny egress with per-agent allowlists, provider abstraction (agents inherit your OpenAI/Anthropic/Bedrock/Ollama config), hash-chained audit logs.
+**Security model:**
+- Container isolation
+- Runtime credential injection (separated from agent provider)
+- Default-deny egress with per-agent allowlists
+- Provider abstraction (agents inherit your OpenAI/Anthropic/Bedrock/Ollama config)
+- Hash-chained audit logs
 
-Discover agents, install them, run them on your infrastructure.
+Infrastructure for a commoditized agent future. Discover agents, install them, run them on your infrastructure.
 
 📺 **[Watch the 100-second demo](https://www.youtube.com/watch?v=YRDamSh7M-I)** | **[Full walkthrough (9 min)](https://www.youtube.com/watch?v=G2csNRrVXM8)**
 
