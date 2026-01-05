@@ -1,7 +1,7 @@
 # AgentSystems
 
 > [!NOTE]
-> **Pre-Release Software** - AgentSystems is in active development. Join our [Discord](https://discord.com/invite/JsxDxQ5zfV) for updates and early access.
+> **Pre-Release Software** - AgentSystems Fortress is in active development. Join our [Discord](https://discord.com/invite/JsxDxQ5zfV) for updates and early access.
 
 **Self-hosted app store and runtime for third-party AI agents.**
 
