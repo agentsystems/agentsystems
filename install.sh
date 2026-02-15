@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AgentSystems Installation Script
+# AgentSystems Fortress Installation Script
 # Version: 0.3.3
 #
 # Idempotent setup for pipx, Docker Engine, and agentsystems-sdk
