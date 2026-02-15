@@ -193,7 +193,7 @@ A: Yes. The index is Git-based and federated. Fork the [agent-index](https://git
 
 ## Contributing
 
-We welcome contributions across the stack:
+We welcome contributions across the Fortress stack:
 - 🤖 **Build Agents** - Create specialized agents and publish to the index
 - 🔒 **Security** - Improve isolation, audit mechanisms, or egress controls
 - 📚 **Documentation** - Write guides, tutorials, or API references
